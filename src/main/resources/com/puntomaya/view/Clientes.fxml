@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.ClienteController"
+            prefWidth="780" prefHeight="560">
+
+    <top>
+        <Label text="Clientes / Fiados" styleClass="titulo" style="-fx-padding: 16;"/>
+    </top>
+
+    <center>
+        <TableView fx:id="tablaClientes" style="-fx-padding: 0 16 0 16;">
+            <columns>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="220"/>
+                <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="140"/>
+                <TableColumn fx:id="colLimite" text="Límite de crédito" prefWidth="150"/>
+                <TableColumn fx:id="colSaldo" text="Saldo actual" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <VBox spacing="14" style="-fx-padding: 16;">
+            <HBox spacing="10">
+                <TextField fx:id="txtNombre" promptText="Nombre del cliente" prefWidth="200"/>
+                <TextField fx:id="txtTelefono" promptText="Teléfono" prefWidth="140"/>
+                <TextField fx:id="txtLimiteCredito" promptText="Límite de crédito" prefWidth="140"/>
+                <Button text="Guardar cliente" onAction="#guardarCliente"/>
+                <Button text="Eliminar" styleClass="button-peligro" onAction="#eliminarCliente"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="txtMontoAbono" promptText="Monto del abono" prefWidth="160"/>
+                <Button text="Registrar abono" styleClass="button-secundario" onAction="#registrarAbono"/>
+                <Button text="Regresar al menú" onAction="#regresarAlMenu"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>

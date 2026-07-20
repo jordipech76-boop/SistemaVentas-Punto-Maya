@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.ProductoController"
+            prefWidth="820" prefHeight="580">
+
+    <top>
+        <Label text="Productos y precios" styleClass="titulo" style="-fx-padding: 16;"/>
+    </top>
+
+    <center>
+        <TableView fx:id="tablaProductos" style="-fx-padding: 0 16 0 16;">
+            <columns>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="300"/>
+                <TableColumn fx:id="colPrecioVenta" text="Precio de venta" prefWidth="150"/>
+                <TableColumn fx:id="colStock" text="Existencia" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <VBox spacing="14" style="-fx-padding: 16;">
+            <HBox spacing="10">
+                <TextField fx:id="txtCodigoBarras" promptText="Código de barras (opcional)" prefWidth="180"/>
+                <TextField fx:id="txtNombre" promptText="Nombre del producto" prefWidth="200"/>
+                <TextField fx:id="txtPrecioVenta" promptText="Precio de venta" prefWidth="130"/>
+                <TextField fx:id="txtPrecioCosto" promptText="Precio de costo" prefWidth="130"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="txtStock" promptText="Existencia inicial" prefWidth="140"/>
+                <TextField fx:id="txtPuntoReorden" promptText="Punto de reorden" prefWidth="140"/>
+                <CheckBox fx:id="chkEsGranel" text="Se vende a granel (por kilo)"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Eliminar seleccionado" styleClass="button-peligro" onAction="#eliminarProducto"/>
+                <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+                <Button fx:id="btnGuardar" text="Guardar producto" onAction="#guardarProducto"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>

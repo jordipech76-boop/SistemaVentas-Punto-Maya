@@ -1,0 +1,59 @@
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 15px;
+    -fx-background-color: #f4f7fb;
+}
+
+.titulo {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f3a5f;
+}
+
+.subtitulo {
+    -fx-font-size: 15px;
+    -fx-text-fill: #555555;
+}
+
+.button {
+    -fx-background-color: #1f3a5f;
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-padding: 10 20 10 20;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #2f5f8f;
+}
+
+.button-secundario {
+    -fx-background-color: #b5762b;
+}
+
+.button-secundario:hover {
+    -fx-background-color: #cf8b3b;
+}
+
+.button-peligro {
+    -fx-background-color: #a33a3a;
+}
+
+.button-peligro:hover {
+    -fx-background-color: #c14545;
+}
+
+.text-field, .password-field, .combo-box, .check-box {
+    -fx-font-size: 15px;
+}
+
+.label-total {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f3a5f;
+}
+
+.table-view {
+    -fx-font-size: 14px;
+}

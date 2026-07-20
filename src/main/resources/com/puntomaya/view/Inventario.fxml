@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.InventarioController"
+            prefWidth="780" prefHeight="560">
+
+    <top>
+        <VBox spacing="8" style="-fx-padding: 16;">
+            <Label text="Inventario" styleClass="titulo"/>
+            <Label text="Productos con stock bajo (ya llegaron a su punto de reorden):" styleClass="subtitulo"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="tablaStockBajo" style="-fx-padding: 0 16 0 16;">
+            <columns>
+                <TableColumn fx:id="colNombre" text="Producto" prefWidth="300"/>
+                <TableColumn fx:id="colStock" text="Existencia actual" prefWidth="150"/>
+                <TableColumn fx:id="colPuntoReorden" text="Punto de reorden" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <VBox spacing="14" style="-fx-padding: 16;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <ComboBox fx:id="comboProducto" promptText="Selecciona producto" prefWidth="240"/>
+                <TextField fx:id="txtCantidad" promptText="Cantidad" prefWidth="120"/>
+                <TextField fx:id="txtMotivo" promptText="Motivo (solo para merma)" prefWidth="220"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+                <Button text="Registrar merma" styleClass="button-peligro" onAction="#registrarMerma"/>
+                <Button text="Registrar entrada" onAction="#registrarEntrada"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>

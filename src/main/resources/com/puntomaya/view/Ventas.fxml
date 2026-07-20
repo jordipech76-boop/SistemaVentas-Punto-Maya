@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.VentaController"
+            prefWidth="820" prefHeight="560">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 16;">
+            <Label text="Vender" styleClass="titulo"/>
+            <HBox spacing="10">
+                <TextField fx:id="txtCodigoBarras" promptText="Escanea el código de barras"
+                           onAction="#buscarPorCodigoBarras" prefWidth="260"/>
+                <TextField fx:id="txtBuscarProducto" promptText="Buscar por nombre (a granel / sin código)"
+                           onAction="#buscarPorNombre" prefWidth="300"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="tablaCarrito" style="-fx-padding: 0 16 0 16;">
+            <columns>
+                <TableColumn fx:id="colProducto" text="Producto" prefWidth="280"/>
+                <TableColumn fx:id="colCantidad" text="Cantidad" prefWidth="100"/>
+                <TableColumn fx:id="colPrecio" text="Precio" prefWidth="100"/>
+                <TableColumn fx:id="colImporte" text="Importe" prefWidth="100"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <VBox spacing="14" style="-fx-padding: 16;">
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Button text="Quitar seleccionado" onAction="#quitarProductoSeleccionado"/>
+                <Button text="Cancelar venta" styleClass="button-peligro" onAction="#cancelarVentaActual"/>
+                <Label text="Total:" styleClass="subtitulo"/>
+                <Label fx:id="lblTotal" text="$0.00" styleClass="label-total"/>
+            </HBox>
+
+            <HBox spacing="16" alignment="CENTER_LEFT">
+                <Label text="Forma de pago:"/>
+                <ComboBox fx:id="comboFormaPago" prefWidth="160"/>
+                <CheckBox fx:id="chkEsFiado" text="Venta a crédito (fiado)"/>
+                <ComboBox fx:id="comboCliente" promptText="Selecciona cliente" prefWidth="220"/>
+            </HBox>
+
+            <HBox spacing="16" alignment="CENTER_RIGHT">
+                <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+                <Button text="Cobrar" onAction="#cobrarVenta" prefWidth="160"/>
+            </HBox>
+        </VBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>
