@@ -39,7 +39,7 @@
                 <Button text="Quitar seleccionado" onAction="#quitarProductoSeleccionado"/>
                 <Button text="Cancelar venta" styleClass="button-peligro" onAction="#cancelarVentaActual"/>
                 <Label text="Total:" styleClass="subtitulo"/>
-                <Label fx:id="lblTotal" text="$0.00" styleClass="label-total"/>
+                <Label fx:id="lblTotal" text="" styleClass="label-total"/>
             </HBox>
 
             <HBox spacing="16" alignment="CENTER_LEFT">

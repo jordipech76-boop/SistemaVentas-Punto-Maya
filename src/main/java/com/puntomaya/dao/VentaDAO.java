@@ -171,6 +171,129 @@ public class VentaDAO {
         return 0;
     }
 
+    // ------------------------------------------------------------
+    // Consultas para la pantalla de Reportes (pedidas por Miguel)
+    // ------------------------------------------------------------
+
+    /** Cuántas ventas y cuánto se vendió en total (todas las formas de pago) en una fecha. */
+    public double sumarVentasTotalDia(LocalDate fecha) {
+        String sql = "SELECT COALESCE(SUM(total), 0) AS total FROM venta "
+                + "WHERE DATE(fecha) = ? AND cancelada = FALSE";
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(fecha));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble("total");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al sumar ventas del día", e);
+        }
+        return 0;
+    }
+
+    /** Cuántas ventas (número de tickets) se hicieron en una fecha. */
+    public int contarVentasDia(LocalDate fecha) {
+        String sql = "SELECT COUNT(*) AS num FROM venta WHERE DATE(fecha) = ? AND cancelada = FALSE";
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setDate(1, Date.valueOf(fecha));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt("num");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al contar ventas del día", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Ganancia total (venta - costo actual) de todas las ventas desde una fecha/hora.
+     * Usa el precio_costo ACTUAL del producto (no el que tenía el día que se vendió),
+     * que es una simplificación razonable para un negocio de este tamaño.
+     */
+    public double calcularGananciaDesde(LocalDateTime desde) {
+        String sql = "SELECT COALESCE(SUM((dv.precio_unitario - p.precio_costo) * dv.cantidad), 0) AS ganancia "
+                + "FROM detalle_venta dv "
+                + "JOIN venta v ON v.id_venta = dv.id_venta "
+                + "JOIN producto p ON p.id_producto = dv.id_producto "
+                + "WHERE v.fecha >= ? AND v.cancelada = FALSE";
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setTimestamp(1, Timestamp.valueOf(desde));
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getDouble("ganancia");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al calcular la ganancia", e);
+        }
+        return 0;
+    }
+
+    /**
+     * Productos más vendidos (en cantidad) desde una fecha, límite de filas.
+     * Sirve tanto para el reporte de "más vendidos" como para la sugerencia
+     * de compra de Beto (con distinto rango de días y límite).
+     */
+    public List<ProductoVendido> productosMasVendidos(LocalDateTime desde, int limite) {
+        String sql = "SELECT p.nombre AS nombre, SUM(dv.cantidad) AS total_vendido "
+                + "FROM detalle_venta dv "
+                + "JOIN venta v ON v.id_venta = dv.id_venta "
+                + "JOIN producto p ON p.id_producto = dv.id_producto "
+                + "WHERE v.fecha >= ? AND v.cancelada = FALSE "
+                + "GROUP BY p.id_producto, p.nombre "
+                + "ORDER BY total_vendido DESC "
+                + "LIMIT ?";
+        List<ProductoVendido> resultado = new ArrayList<>();
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setTimestamp(1, Timestamp.valueOf(desde));
+            ps.setInt(2, limite);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(new ProductoVendido(rs.getString("nombre"), rs.getDouble("total_vendido")));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al calcular productos más vendidos", e);
+        }
+        return resultado;
+    }
+
+    /**
+     * Pequeña clase de apoyo (no es una tabla): representa una fila del
+     * reporte "producto + cuánto se vendió", tanto para el ranking de
+     * más vendidos como para la sugerencia de compra.
+     */
+    public static class ProductoVendido {
+        private final String nombre;
+        private final double cantidadVendida;
+
+        public ProductoVendido(String nombre, double cantidadVendida) {
+            this.nombre = nombre;
+            this.cantidadVendida = cantidadVendida;
+        }
+
+        public String getNombre() {
+            return nombre;
+        }
+
+        public double getCantidadVendida() {
+            return cantidadVendida;
+        }
+    }
+
     /**
      * Marca una venta como cancelada (no la borra, para dejar rastro/auditoría).
      */

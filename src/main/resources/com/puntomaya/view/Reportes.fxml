@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.ReporteController"
+            prefWidth="900" prefHeight="700">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 16;">
+            <Label text="Reportes" styleClass="titulo"/>
+
+            <GridPane hgap="30" vgap="4">
+                <Label text="Ventas de hoy:" styleClass="subtitulo" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <Label fx:id="lblNumVentasHoy" text="0" styleClass="label-total" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                <Label text="Total vendido hoy:" styleClass="subtitulo" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label fx:id="lblTotalVentasHoy" text="" styleClass="label-total" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Ganancia de hoy:" styleClass="subtitulo" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <Label fx:id="lblGananciaHoy" text="" styleClass="label-total" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+                <Label text="Total en fiados pendientes:" styleClass="subtitulo" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                <Label fx:id="lblTotalFiados" text="" styleClass="label-total" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+            </GridPane>
+        </VBox>
+    </top>
+
+    <center>
+        <HBox spacing="14" style="-fx-padding: 0 16 0 16;">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Más vendidos (últimos 30 días)" styleClass="subtitulo"/>
+                <TableView fx:id="tablaMasVendidos" prefHeight="220">
+                    <columns>
+                        <TableColumn fx:id="colNombreVendido" text="Producto" prefWidth="160"/>
+                        <TableColumn fx:id="colCantidadVendida" text="Cantidad vendida" prefWidth="120"/>
+                    </columns>
+                </TableView>
+
+                <Label text="Sugerencia de compra (top 10, últimos 30 días)" styleClass="subtitulo"/>
+                <TableView fx:id="tablaSugerencia" prefHeight="220">
+                    <columns>
+                        <TableColumn fx:id="colNombreSugerido" text="Producto" prefWidth="160"/>
+                        <TableColumn fx:id="colCantidadSugerida" text="Se vendió" prefWidth="120"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Clientes con fiados pendientes" styleClass="subtitulo"/>
+                <TableView fx:id="tablaFiados" prefHeight="460">
+                    <columns>
+                        <TableColumn fx:id="colClienteFiado" text="Cliente" prefWidth="180"/>
+                        <TableColumn fx:id="colSaldoFiado" text="Debe" prefWidth="120"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 16;">
+            <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+            <Button text="Actualizar" onAction="#actualizar"/>
+        </HBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>
