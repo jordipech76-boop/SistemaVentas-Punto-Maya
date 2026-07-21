@@ -35,6 +35,9 @@ public class VentaController {
     private TextField txtBuscarProducto;
 
     @FXML
+    private TextField txtCantidad;
+
+    @FXML
     private TableView<DetalleVenta> tablaCarrito;
 
     @FXML
@@ -97,16 +100,19 @@ public class VentaController {
         String codigo = txtCodigoBarras.getText().trim();
         if (codigo.isEmpty()) return;
 
+        double cantidad = leerCantidad();
+        if (cantidad <= 0) return;
+
         Optional<Producto> producto = productoService.buscarPorCodigoBarras(codigo);
         if (producto.isPresent()) {
-            agregarProductoAlCarrito(producto.get(), 1);
+            agregarProductoAlCarrito(producto.get(), cantidad);
         } else {
             Alertas.mostrarAdvertencia("No encontrado", "Ningún producto tiene ese código de barras.");
         }
         txtCodigoBarras.clear();
+        txtCantidad.setText("1");
         txtCodigoBarras.requestFocus();
     }
-
     /**
      * Búsqueda por nombre, para productos a granel o sin código de barras.
      */
@@ -115,14 +121,38 @@ public class VentaController {
         String texto = txtBuscarProducto.getText().trim();
         if (texto.isEmpty()) return;
 
+        double cantidad = leerCantidad();
+        if (cantidad <= 0) return;
+
         List<Producto> encontrados = productoService.buscarPorNombre(texto);
         if (encontrados.isEmpty()) {
             Alertas.mostrarAdvertencia("Sin resultados", "No se encontraron productos con ese nombre.");
             return;
         }
         // Se toma el primero como ejemplo simple; se puede cambiar por una ventana de selección.
-        agregarProductoAlCarrito(encontrados.get(0), 1);
+        agregarProductoAlCarrito(encontrados.get(0), cantidad);
         txtBuscarProducto.clear();
+        txtCantidad.setText("1");
+    }
+
+    /**
+     * Lee la cantidad escrita en el campo de cantidad. Si está vacío o
+     * inválido, asume 1 (para no romper el flujo si alguien lo deja en blanco).
+     */
+    private double leerCantidad() {
+        String texto = txtCantidad.getText().trim();
+        if (texto.isEmpty()) return 1;
+        try {
+            double cantidad = Double.parseDouble(texto);
+            if (cantidad <= 0) {
+                Alertas.mostrarAdvertencia("Cantidad inválida", "La cantidad debe ser mayor que cero.");
+                return 0;
+            }
+            return cantidad;
+        } catch (NumberFormatException e) {
+            Alertas.mostrarAdvertencia("Cantidad inválida", "Escribe un número válido en el campo de cantidad.");
+            return 0;
+        }
     }
 
     private void agregarProductoAlCarrito(Producto producto, double cantidad) {
