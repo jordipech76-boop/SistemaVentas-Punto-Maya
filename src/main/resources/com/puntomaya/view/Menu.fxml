@@ -26,6 +26,8 @@
                     styleClass="button-secundario" onAction="#abrirProductos"/>
             <Button fx:id="btnInventario" text="Inventario" prefWidth="220"
                     styleClass="button-secundario" onAction="#abrirInventario"/>
+            <Button fx:id="btnReportes" text="Reportes" prefWidth="220"
+                    styleClass="button-secundario" onAction="#abrirReportes"/>
         </VBox>
     </center>
 
