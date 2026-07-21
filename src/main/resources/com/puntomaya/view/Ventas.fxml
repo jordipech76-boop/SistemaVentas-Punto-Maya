@@ -8,16 +8,17 @@
 
 <BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.puntomaya.controller.VentaController"
-            prefWidth="820" prefHeight="560">
+            prefWidth="860" prefHeight="640">
 
     <top>
         <VBox spacing="10" style="-fx-padding: 16;">
             <Label text="Vender" styleClass="titulo"/>
             <HBox spacing="10">
                 <TextField fx:id="txtCodigoBarras" promptText="Escanea el código de barras"
-                           onAction="#buscarPorCodigoBarras" prefWidth="260"/>
+                           onAction="#buscarPorCodigoBarras" prefWidth="220"/>
                 <TextField fx:id="txtBuscarProducto" promptText="Buscar por nombre (a granel / sin código)"
-                           onAction="#buscarPorNombre" prefWidth="300"/>
+                           onAction="#buscarPorNombre" prefWidth="280"/>
+                <TextField fx:id="txtCantidad" text="1" promptText="Cantidad" prefWidth="80"/>
             </HBox>
         </VBox>
     </top>
@@ -34,7 +35,7 @@
     </center>
 
     <bottom>
-        <VBox spacing="14" style="-fx-padding: 16;">
+        <VBox spacing="12" style="-fx-padding: 16;">
             <HBox spacing="16" alignment="CENTER_LEFT">
                 <Button text="Quitar seleccionado" onAction="#quitarProductoSeleccionado"/>
                 <Button text="Cancelar venta" styleClass="button-peligro" onAction="#cancelarVentaActual"/>
@@ -45,11 +46,19 @@
             <HBox spacing="16" alignment="CENTER_LEFT">
                 <Label text="Forma de pago:"/>
                 <ComboBox fx:id="comboFormaPago" prefWidth="160"/>
+                <TextField fx:id="txtMontoRecibido" promptText="Monto recibido" prefWidth="140"/>
+                <Label fx:id="lblCambio" text="" styleClass="label-total" style="-fx-font-size: 16px;"/>
+            </HBox>
+
+            <HBox spacing="16" alignment="CENTER_LEFT">
                 <CheckBox fx:id="chkEsFiado" text="Venta a crédito (fiado)"/>
                 <ComboBox fx:id="comboCliente" promptText="Selecciona cliente" prefWidth="220"/>
+                <Label fx:id="lblSaldoCliente" text="" styleClass="subtitulo"/>
             </HBox>
 
             <HBox spacing="16" alignment="CENTER_RIGHT">
+                <Button fx:id="btnCancelarVentaCobrada" text="Cancelar venta ya cobrada"
+                        styleClass="button-peligro" onAction="#cancelarVentaCobrada" visible="false" managed="false"/>
                 <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
                 <Button text="Cobrar" onAction="#cobrarVenta" prefWidth="160"/>
             </HBox>

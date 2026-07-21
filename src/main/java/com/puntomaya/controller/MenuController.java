@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * Controlador del menú principal: desde aquí se navega a Ventas, Clientes,
- * Productos e Inventario, según el rol del usuario que inició sesión.
+ * Productos, Inventario y Reportes, según el rol del usuario que inició sesión.
  */
 public class MenuController {
 
@@ -35,6 +35,9 @@ public class MenuController {
     private Button btnInventario;
 
     @FXML
+    private Button btnReportes;
+
+    @FXML
     public void initialize() {
         var usuario = SesionActual.getUsuario();
         if (usuario != null) {
@@ -47,17 +50,19 @@ public class MenuController {
      * Oculta las opciones que no le corresponden al rol actual.
      * Cajero: solo Ventas y Clientes (para consultar fiados).
      * Almacenista: solo Productos e Inventario.
-     * Administrador: ve todo.
+     * Administrador: ve todo, incluidos Reportes.
      */
     private void aplicarPermisosPorRol(RolUsuario rol) {
         switch (rol) {
             case CAJERO -> {
                 btnProductos.setVisible(false);
                 btnInventario.setVisible(false);
+                btnReportes.setVisible(false);
             }
             case ALMACENISTA -> {
                 btnVentas.setVisible(false);
                 btnClientes.setVisible(false);
+                btnReportes.setVisible(false);
             }
             case ADMINISTRADOR -> {
                 // ve todas las opciones
@@ -83,6 +88,11 @@ public class MenuController {
     @FXML
     private void abrirInventario(ActionEvent event) throws IOException {
         cambiarPantalla(event, "/com/puntomaya/view/Inventario.fxml", "PuntoMaya - Inventario");
+    }
+
+    @FXML
+    private void abrirReportes(ActionEvent event) throws IOException {
+        cambiarPantalla(event, "/com/puntomaya/view/Reportes.fxml", "PuntoMaya - Reportes");
     }
 
     @FXML

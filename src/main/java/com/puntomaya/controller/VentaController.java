@@ -12,19 +12,24 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.print.PrinterJob;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Controlador de la pantalla de ventas: agregar productos, cobrar,
- * vender a crédito, cancelar antes de cobrar.
+ * vender a crédito, cancelar antes de cobrar, calcular cambio,
+ * generar ticket y (solo Administrador) cancelar una venta ya cobrada.
  */
 public class VentaController {
 
@@ -64,6 +69,18 @@ public class VentaController {
     @FXML
     private ComboBox<Cliente> comboCliente;
 
+    @FXML
+    private Label lblSaldoCliente;
+
+    @FXML
+    private TextField txtMontoRecibido;
+
+    @FXML
+    private Label lblCambio;
+
+    @FXML
+    private Button btnCancelarVentaCobrada;
+
     private final ProductoService productoService = new ProductoService();
     private final ClienteService clienteService = new ClienteService();
     private final VentaService ventaService = new VentaService();
@@ -85,16 +102,39 @@ public class VentaController {
         comboCliente.setItems(FXCollections.observableArrayList(clienteService.listar()));
         comboCliente.setDisable(true);
 
-        chkEsFiado.selectedProperty().addListener((obs, anterior, esFiado) ->
-                comboCliente.setDisable(!esFiado));
+        chkEsFiado.selectedProperty().addListener((obs, anterior, esFiado) -> {
+            comboCliente.setDisable(!esFiado);
+            if (!esFiado) lblSaldoCliente.setText("");
+        });
+
+        comboCliente.valueProperty().addListener((obs, anterior, cliente) -> {
+            if (cliente != null) {
+                lblSaldoCliente.setText("Saldo actual: " + Utilidades.formatearMoneda(cliente.getSaldoActual())
+                        + "  /  Límite: " + Utilidades.formatearMoneda(cliente.getLimiteCredito()));
+            } else {
+                lblSaldoCliente.setText("");
+            }
+        });
+
+        txtMontoRecibido.textProperty().addListener((obs, anterior, nuevo) -> actualizarCambio());
+        comboFormaPago.valueProperty().addListener((obs, anterior, forma) -> {
+            boolean esEfectivo = forma == FormaPago.EFECTIVO;
+            txtMontoRecibido.setDisable(!esEfectivo);
+            if (!esEfectivo) {
+                txtMontoRecibido.clear();
+                lblCambio.setText("");
+            }
+        });
+
+        if (btnCancelarVentaCobrada != null) {
+            var usuario = SesionActual.getUsuario();
+            btnCancelarVentaCobrada.setVisible(usuario != null && usuario.esAdministrador());
+            btnCancelarVentaCobrada.setManaged(usuario != null && usuario.esAdministrador());
+        }
 
         actualizarTotal();
     }
 
-    /**
-     * Se llama cuando la cajera pasa el lector de código de barras
-     * (el lector "escribe" el código y presiona Enter automáticamente).
-     */
     @FXML
     private void buscarPorCodigoBarras(ActionEvent event) {
         String codigo = txtCodigoBarras.getText().trim();
@@ -113,9 +153,7 @@ public class VentaController {
         txtCantidad.setText("1");
         txtCodigoBarras.requestFocus();
     }
-    /**
-     * Búsqueda por nombre, para productos a granel o sin código de barras.
-     */
+
     @FXML
     private void buscarPorNombre(ActionEvent event) {
         String texto = txtBuscarProducto.getText().trim();
@@ -129,7 +167,6 @@ public class VentaController {
             Alertas.mostrarAdvertencia("Sin resultados", "No se encontraron productos con ese nombre.");
             return;
         }
-        // Se toma el primero como ejemplo simple; se puede cambiar por una ventana de selección.
         agregarProductoAlCarrito(encontrados.get(0), cantidad);
         txtBuscarProducto.clear();
         txtCantidad.setText("1");
@@ -162,6 +199,7 @@ public class VentaController {
         ventaActual.setDetalles(carrito);
         ventaActual.recalcularTotales();
         actualizarTotal();
+        actualizarCambio();
     }
 
     @FXML
@@ -171,6 +209,7 @@ public class VentaController {
             carrito.remove(seleccionado);
             ventaActual.recalcularTotales();
             actualizarTotal();
+            actualizarCambio();
         }
     }
 
@@ -182,11 +221,27 @@ public class VentaController {
             carrito.clear();
             ventaActual = new Venta();
             actualizarTotal();
+            actualizarCambio();
         }
     }
 
     private void actualizarTotal() {
         lblTotal.setText(Utilidades.formatearMoneda(ventaActual.getTotal()));
+    }
+
+    private void actualizarCambio() {
+        if (lblCambio == null || txtMontoRecibido == null) return;
+        try {
+            double recibido = Double.parseDouble(txtMontoRecibido.getText());
+            double cambio = recibido - ventaActual.getTotal();
+            if (cambio < 0) {
+                lblCambio.setText("Falta: " + Utilidades.formatearMoneda(-cambio));
+            } else {
+                lblCambio.setText("Cambio: " + Utilidades.formatearMoneda(cambio));
+            }
+        } catch (NumberFormatException e) {
+            lblCambio.setText("");
+        }
     }
 
     @FXML
@@ -196,9 +251,23 @@ public class VentaController {
             return;
         }
 
-        ventaActual.setFormaPago(comboFormaPago.getValue());
+        FormaPago formaPago = comboFormaPago.getValue();
+        ventaActual.setFormaPago(formaPago);
         ventaActual.setEsFiado(chkEsFiado.isSelected());
         ventaActual.setIdUsuario(SesionActual.getUsuario().getId());
+
+        if (formaPago == FormaPago.EFECTIVO) {
+            try {
+                double recibido = Double.parseDouble(txtMontoRecibido.getText());
+                if (recibido < ventaActual.getTotal()) {
+                    Alertas.mostrarAdvertencia("Falta dinero", "El monto recibido es menor al total de la venta.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Alertas.mostrarAdvertencia("Falta el monto recibido", "Escribe cuánto dinero entregó el cliente.");
+                return;
+            }
+        }
 
         if (chkEsFiado.isSelected()) {
             Cliente cliente = comboCliente.getValue();
@@ -212,14 +281,14 @@ public class VentaController {
         }
 
         try {
-            ventaService.realizarVenta(ventaActual);
-            Alertas.mostrarInformacion("Venta registrada", "La venta se guardó correctamente.\nTotal: "
-                    + Utilidades.formatearMoneda(ventaActual.getTotal()));
+            Ticket ticket = ventaService.realizarVenta(ventaActual);
+            mostrarTicket(ticket, ventaActual);
 
-            // Limpiar para la siguiente venta
             carrito.clear();
             ventaActual = new Venta();
             chkEsFiado.setSelected(false);
+            txtMontoRecibido.clear();
+            lblCambio.setText("");
             actualizarTotal();
 
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -228,6 +297,69 @@ public class VentaController {
             Alertas.mostrarError("Error de conexión",
                     "No se pudo conectar a la base de datos. Verifica que MySQL esté encendido.");
         }
+    }
+
+    private void mostrarTicket(Ticket ticket, Venta venta) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PUNTOMAYA\n");
+        sb.append("Ticket #").append(ticket.getFolio()).append("\n");
+        sb.append(ticket.getFechaEmision().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))).append("\n");
+        sb.append("------------------------------\n");
+        for (DetalleVenta d : venta.getDetalles()) {
+            sb.append(String.format("%-16s x%-4s %8s%n",
+                    d.getNombreProducto(), d.getCantidad(), Utilidades.formatearMoneda(d.getImporte())));
+        }
+        sb.append("------------------------------\n");
+        sb.append(String.format("%-20s %9s%n", "TOTAL", Utilidades.formatearMoneda(venta.getTotal())));
+        sb.append("Forma de pago: ").append(venta.getFormaPago()).append("\n");
+        sb.append("\n¡Gracias por su compra!");
+
+        TextArea textArea = new TextArea(sb.toString());
+        textArea.setEditable(false);
+        textArea.setFont(Font.font("Consolas", 12));
+        textArea.setPrefSize(300, 380);
+
+        Button btnImprimir = new Button("Imprimir");
+        btnImprimir.setOnAction(e -> {
+            PrinterJob job = PrinterJob.createPrinterJob();
+            if (job != null && job.showPrintDialog(textArea.getScene().getWindow())) {
+                boolean ok = job.printPage(textArea);
+                if (ok) job.endJob();
+            }
+        });
+
+        VBox contenedor = new VBox(10, textArea, btnImprimir);
+        contenedor.setStyle("-fx-padding: 16; -fx-alignment: center;");
+
+        Stage ventana = new Stage();
+        ventana.setTitle("Ticket de venta");
+        ventana.setScene(new Scene(contenedor));
+        ventana.show();
+    }
+
+    @FXML
+    private void cancelarVentaCobrada(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Cancelar venta ya cobrada");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Número de venta (id) a cancelar:");
+        Optional<String> resultado = dialog.showAndWait();
+
+        resultado.ifPresent(texto -> {
+            try {
+                int idVenta = Integer.parseInt(texto.trim());
+                boolean confirmar = Alertas.confirmar("Confirmar cancelación",
+                        "¿Seguro que quieres cancelar la venta #" + idVenta + "? Esta acción repone el inventario y queda registrada.");
+                if (confirmar) {
+                    ventaService.cancelarVenta(idVenta, SesionActual.getUsuario().getId());
+                    Alertas.mostrarInformacion("Listo", "La venta #" + idVenta + " fue cancelada.");
+                }
+            } catch (NumberFormatException e) {
+                Alertas.mostrarAdvertencia("Dato inválido", "Escribe solo el número de la venta.");
+            } catch (IllegalArgumentException e) {
+                Alertas.mostrarAdvertencia("No se pudo cancelar", e.getMessage());
+            }
+        });
     }
 
     @FXML
