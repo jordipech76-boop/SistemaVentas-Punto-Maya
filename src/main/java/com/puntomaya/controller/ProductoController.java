@@ -50,6 +50,9 @@ public class ProductoController {
     private TableView<Producto> tablaProductos;
 
     @FXML
+    private TableColumn<Producto, String> colCodigoBarras;
+
+    @FXML
     private TableColumn<Producto, String> colNombre;
 
     @FXML
@@ -66,6 +69,7 @@ public class ProductoController {
 
     @FXML
     public void initialize() {
+        colCodigoBarras.setCellValueFactory(new PropertyValueFactory<>("codigoBarras"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colPrecioVenta.setCellValueFactory(new PropertyValueFactory<>("precioVenta"));
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));

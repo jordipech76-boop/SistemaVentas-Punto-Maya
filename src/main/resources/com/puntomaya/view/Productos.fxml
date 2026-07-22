@@ -17,9 +17,10 @@
     <center>
         <TableView fx:id="tablaProductos" style="-fx-padding: 0 16 0 16;">
             <columns>
-                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="300"/>
-                <TableColumn fx:id="colPrecioVenta" text="Precio de venta" prefWidth="150"/>
-                <TableColumn fx:id="colStock" text="Existencia" prefWidth="150"/>
+                <TableColumn fx:id="colCodigoBarras" text="Código de barras" prefWidth="150"/>
+                <TableColumn fx:id="colNombre" text="Nombre" prefWidth="250"/>
+                <TableColumn fx:id="colPrecioVenta" text="Precio de venta" prefWidth="130"/>
+                <TableColumn fx:id="colStock" text="Existencia" prefWidth="130"/>
             </columns>
         </TableView>
     </center>
