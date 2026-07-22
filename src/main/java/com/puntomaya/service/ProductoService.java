@@ -30,6 +30,11 @@ public class ProductoService {
         return productoDAO.listarStockBajo();
     }
 
+    /** Productos que ya vencieron o vencen pronto (alerta de caducidad para Beto). */
+    public List<Producto> listarPorCaducar(int dias) {
+        return productoDAO.listarPorCaducar(dias);
+    }
+
     public void guardar(Producto producto) {
         if (producto.getNombre() == null || producto.getNombre().isBlank()) {
             throw new IllegalArgumentException("El nombre del producto es obligatorio");

@@ -65,6 +65,69 @@ public class InventarioDAO {
         return movimientos;
     }
 
+    /**
+     * Los movimientos más recientes de TODOS los productos, con nombres
+     * legibles (no solo IDs), para mostrar en la pantalla de Inventario.
+     */
+    public List<MovimientoDetalle> listarRecientes(int limite) {
+        String sql = "SELECT i.fecha, p.nombre AS producto, pr.nombre AS proveedor, "
+                + "i.tipo, i.cantidad, i.motivo "
+                + "FROM inventario i "
+                + "JOIN producto p ON p.id_producto = i.id_producto "
+                + "LEFT JOIN proveedor pr ON pr.id_proveedor = i.id_proveedor "
+                + "ORDER BY i.fecha DESC LIMIT ?";
+        List<MovimientoDetalle> resultado = new ArrayList<>();
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, limite);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultado.add(new MovimientoDetalle(
+                            rs.getTimestamp("fecha").toLocalDateTime(),
+                            rs.getString("producto"),
+                            rs.getString("proveedor"),
+                            rs.getString("tipo"),
+                            rs.getDouble("cantidad"),
+                            rs.getString("motivo")
+                    ));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar movimientos recientes", e);
+        }
+        return resultado;
+    }
+
+    /** Fila de historial ya con nombres legibles, lista para mostrar en pantalla. */
+    public static class MovimientoDetalle {
+        private final java.time.LocalDateTime fecha;
+        private final String producto;
+        private final String proveedor;
+        private final String tipo;
+        private final double cantidad;
+        private final String motivo;
+
+        public MovimientoDetalle(java.time.LocalDateTime fecha, String producto, String proveedor,
+                                 String tipo, double cantidad, String motivo) {
+            this.fecha = fecha;
+            this.producto = producto;
+            this.proveedor = proveedor;
+            this.tipo = tipo;
+            this.cantidad = cantidad;
+            this.motivo = motivo;
+        }
+
+        public java.time.LocalDateTime getFecha() { return fecha; }
+        public String getProducto() { return producto; }
+        public String getProveedor() { return proveedor; }
+        public String getTipo() { return tipo; }
+        public double getCantidad() { return cantidad; }
+        public String getMotivo() { return motivo; }
+    }
+
     public List<Inventario> listarPorTipo(TipoMovimiento tipo) {
         String sql = "SELECT * FROM inventario WHERE tipo = ? ORDER BY fecha DESC";
         List<Inventario> movimientos = new ArrayList<>();

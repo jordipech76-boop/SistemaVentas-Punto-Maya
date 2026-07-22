@@ -67,6 +67,11 @@ public class InventarioService {
         return productoDAO.listarStockBajo();
     }
 
+    /** Los últimos movimientos de inventario de todos los productos (para mostrarlos en pantalla). */
+    public List<InventarioDAO.MovimientoDetalle> historialReciente(int limite) {
+        return inventarioDAO.listarRecientes(limite);
+    }
+
     public List<Inventario> historialPorProducto(int idProducto) {
         return inventarioDAO.listarPorProducto(idProducto);
     }

@@ -8,7 +8,7 @@
 
 <BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.puntomaya.controller.InventarioController"
-            prefWidth="780" prefHeight="560">
+            prefWidth="920" prefHeight="760">
 
     <top>
         <VBox spacing="8" style="-fx-padding: 16;">
@@ -18,24 +18,48 @@
     </top>
 
     <center>
-        <TableView fx:id="tablaStockBajo" style="-fx-padding: 0 16 0 16;">
-            <columns>
-                <TableColumn fx:id="colNombre" text="Producto" prefWidth="300"/>
-                <TableColumn fx:id="colStock" text="Existencia actual" prefWidth="150"/>
-                <TableColumn fx:id="colPuntoReorden" text="Punto de reorden" prefWidth="150"/>
-            </columns>
-        </TableView>
+        <VBox spacing="10" style="-fx-padding: 0 16 0 16;">
+            <TableView fx:id="tablaStockBajo" prefHeight="140">
+                <columns>
+                    <TableColumn fx:id="colNombre" text="Producto" prefWidth="300"/>
+                    <TableColumn fx:id="colStock" text="Existencia actual" prefWidth="150"/>
+                    <TableColumn fx:id="colPuntoReorden" text="Punto de reorden" prefWidth="150"/>
+                </columns>
+            </TableView>
+
+            <Label text="Productos por caducar (próximos 7 días) o ya caducados:" styleClass="subtitulo"/>
+            <TableView fx:id="tablaCaducidad" prefHeight="110">
+                <columns>
+                    <TableColumn fx:id="colNombreCad" text="Producto" prefWidth="300"/>
+                    <TableColumn fx:id="colFechaCaducidad" text="Fecha de caducidad" prefWidth="180"/>
+                </columns>
+            </TableView>
+
+            <Label text="Historial de movimientos recientes (entradas, mermas, devoluciones):" styleClass="subtitulo"/>
+            <TableView fx:id="tablaHistorial" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="colFechaMov" text="Fecha" prefWidth="130"/>
+                    <TableColumn fx:id="colProductoMov" text="Producto" prefWidth="180"/>
+                    <TableColumn fx:id="colProveedorMov" text="Proveedor" prefWidth="120"/>
+                    <TableColumn fx:id="colTipoMov" text="Tipo" prefWidth="100"/>
+                    <TableColumn fx:id="colCantidadMov" text="Cantidad" prefWidth="90"/>
+                    <TableColumn fx:id="colMotivoMov" text="Motivo" prefWidth="140"/>
+                </columns>
+            </TableView>
+        </VBox>
     </center>
 
     <bottom>
         <VBox spacing="14" style="-fx-padding: 16;">
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <ComboBox fx:id="comboProducto" promptText="Selecciona producto" prefWidth="240"/>
-                <TextField fx:id="txtCantidad" promptText="Cantidad" prefWidth="120"/>
-                <TextField fx:id="txtMotivo" promptText="Motivo (solo para merma)" prefWidth="220"/>
+                <ComboBox fx:id="comboProducto" promptText="Selecciona producto" prefWidth="220"/>
+                <ComboBox fx:id="comboProveedor" promptText="Selecciona proveedor" prefWidth="180"/>
+                <TextField fx:id="txtCantidad" promptText="Cantidad" prefWidth="110"/>
+                <TextField fx:id="txtMotivo" promptText="Motivo (merma / devolución)" prefWidth="200"/>
             </HBox>
             <HBox spacing="10" alignment="CENTER_RIGHT">
                 <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+                <Button text="Registrar devolución" styleClass="button-peligro" onAction="#registrarDevolucion"/>
                 <Button text="Registrar merma" styleClass="button-peligro" onAction="#registrarMerma"/>
                 <Button text="Registrar entrada" onAction="#registrarEntrada"/>
             </HBox>

@@ -109,6 +109,31 @@ public class ProductoDAO {
         return productos;
     }
 
+    /**
+     * Productos con fecha de caducidad dentro de los próximos "dias", o ya vencidos.
+     * Para la alerta que pidió Beto (evitar que se pierda producto por caducidad).
+     */
+    public List<Producto> listarPorCaducar(int dias) {
+        String sql = "SELECT * FROM producto WHERE fecha_caducidad IS NOT NULL "
+                + "AND fecha_caducidad <= DATE_ADD(CURDATE(), INTERVAL ? DAY) ORDER BY fecha_caducidad ASC";
+        List<Producto> productos = new ArrayList<>();
+
+        try (Connection con = Conexion.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, dias);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    productos.add(mapear(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar productos por caducar", e);
+        }
+        return productos;
+    }
+
     public void guardar(Producto producto) {
         String sql = "INSERT INTO producto (codigo_barras, nombre, precio_venta, precio_costo, "
                 + "stock, es_granel, punto_reorden, fecha_caducidad) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
