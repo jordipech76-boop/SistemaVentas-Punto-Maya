@@ -12,10 +12,10 @@
             prefWidth="900" prefHeight="700">
 
     <top>
-        <VBox spacing="10" style="-fx-padding: 16;">
+        <VBox spacing="10" style="-fx-padding: 16 16 16 28;">
             <Label text="Reportes" styleClass="titulo"/>
 
-            <GridPane hgap="30" vgap="4">
+            <GridPane hgap="40" vgap="4">
                 <Label text="Ventas de hoy:" styleClass="subtitulo" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                 <Label fx:id="lblNumVentasHoy" text="0" styleClass="label-total" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
 
@@ -65,6 +65,8 @@
 
     <bottom>
         <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 16;">
+            <Button text="Exportar a Excel (CSV)" styleClass="button-secundario" onAction="#exportarCSV"/>
+            <Button text="Respaldar datos (.sql)" styleClass="button-secundario" onAction="#respaldarSQL"/>
             <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
             <Button text="Actualizar" onAction="#actualizar"/>
         </HBox>

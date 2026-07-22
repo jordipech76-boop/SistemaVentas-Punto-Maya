@@ -81,6 +81,9 @@ public class VentaController {
     @FXML
     private Button btnCancelarVentaCobrada;
 
+    @FXML
+    private Button btnAgregarProductoNuevo;
+
     private final ProductoService productoService = new ProductoService();
     private final ClienteService clienteService = new ClienteService();
     private final VentaService ventaService = new VentaService();
@@ -130,6 +133,12 @@ public class VentaController {
             var usuario = SesionActual.getUsuario();
             btnCancelarVentaCobrada.setVisible(usuario != null && usuario.esAdministrador());
             btnCancelarVentaCobrada.setManaged(usuario != null && usuario.esAdministrador());
+        }
+
+        if (btnAgregarProductoNuevo != null) {
+            var usuarioActual = SesionActual.getUsuario();
+            btnAgregarProductoNuevo.setVisible(usuarioActual != null && usuarioActual.esAdministrador());
+            btnAgregarProductoNuevo.setManaged(usuarioActual != null && usuarioActual.esAdministrador());
         }
 
         actualizarTotal();
@@ -297,6 +306,75 @@ public class VentaController {
             Alertas.mostrarError("Error de conexión",
                     "No se pudo conectar a la base de datos. Verifica que MySQL esté encendido.");
         }
+    }
+
+    /**
+     * Botón "+ Producto nuevo" (solo Administrador): abre una ventana rápida
+     * para dar de alta un producto sin salir de la pantalla de Vender, y lo
+     * agrega directo al carrito de la venta actual.
+     */
+    @FXML
+    private void abrirFormularioProductoNuevo(ActionEvent event) {
+        TextField campoCodigo = new TextField();
+        campoCodigo.setPromptText("Código de barras (opcional)");
+
+        TextField campoNombre = new TextField();
+        campoNombre.setPromptText("Nombre del producto");
+
+        TextField campoPrecioVenta = new TextField();
+        campoPrecioVenta.setPromptText("Precio de venta");
+
+        TextField campoPrecioCosto = new TextField();
+        campoPrecioCosto.setPromptText("Precio de costo");
+
+        TextField campoStock = new TextField();
+        campoStock.setPromptText("Existencia inicial");
+        campoStock.setText("0");
+
+        TextField campoPuntoReorden = new TextField();
+        campoPuntoReorden.setPromptText("Punto de reorden");
+        campoPuntoReorden.setText("5");
+
+        CheckBox campoGranel = new CheckBox("Se vende a granel (por kilo)");
+
+        Button botonGuardar = new Button("Guardar y agregar a la venta");
+
+        VBox formulario = new VBox(10,
+                new Label("Nuevo producto"),
+                campoCodigo, campoNombre, campoPrecioVenta, campoPrecioCosto,
+                campoStock, campoPuntoReorden, campoGranel, botonGuardar);
+        formulario.setStyle("-fx-padding: 20; -fx-alignment: center-left;");
+
+        Stage ventanaNueva = new Stage();
+        ventanaNueva.setTitle("Agregar producto nuevo");
+        ventanaNueva.setScene(new Scene(formulario, 320, 400));
+
+        botonGuardar.setOnAction(e -> {
+            try {
+                Producto nuevo = new Producto();
+                nuevo.setCodigoBarras(campoCodigo.getText().isBlank() ? null : campoCodigo.getText());
+                nuevo.setNombre(campoNombre.getText());
+                nuevo.setPrecioVenta(Double.parseDouble(campoPrecioVenta.getText()));
+                nuevo.setPrecioCosto(campoPrecioCosto.getText().isBlank() ? 0 : Double.parseDouble(campoPrecioCosto.getText()));
+                nuevo.setStock(Double.parseDouble(campoStock.getText()));
+                nuevo.setPuntoReorden(Double.parseDouble(campoPuntoReorden.getText()));
+                nuevo.setEsGranel(campoGranel.isSelected());
+
+                productoService.guardar(nuevo);
+
+                agregarProductoAlCarrito(nuevo, 1);
+
+                Alertas.mostrarInformacion("Listo", "Producto agregado al catálogo y a la venta actual.");
+                ventanaNueva.close();
+
+            } catch (NumberFormatException ex) {
+                Alertas.mostrarAdvertencia("Dato inválido", "Revisa que los precios y números sean válidos.");
+            } catch (IllegalArgumentException ex) {
+                Alertas.mostrarAdvertencia("Datos incompletos", ex.getMessage());
+            }
+        });
+
+        ventanaNueva.show();
     }
 
     private void mostrarTicket(Ticket ticket, Venta venta) {

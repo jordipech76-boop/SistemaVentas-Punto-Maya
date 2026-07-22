@@ -1,6 +1,7 @@
 package com.puntomaya.controller;
 
 import com.puntomaya.dao.VentaDAO;
+import com.puntomaya.util.Alertas;
 import com.puntomaya.model.Cliente;
 import com.puntomaya.service.ReporteService;
 import com.puntomaya.util.Utilidades;
@@ -66,7 +67,7 @@ public class ReporteController {
     private TableColumn<Cliente, Double> colSaldoFiado;
 
     private final ReporteService reporteService = new ReporteService();
-
+    private final com.puntomaya.service.BackupService backupService = new com.puntomaya.service.BackupService();
     private final ObservableList<VentaDAO.ProductoVendido> listaMasVendidos = FXCollections.observableArrayList();
     private final ObservableList<VentaDAO.ProductoVendido> listaSugerencia = FXCollections.observableArrayList();
     private final ObservableList<Cliente> listaFiados = FXCollections.observableArrayList();
@@ -107,6 +108,43 @@ public class ReporteController {
     @FXML
     private void actualizar(ActionEvent event) {
         cargarTodo();
+    }
+
+    /** Botón "Respaldar datos (.sql)": guarda TODOS los datos en un solo archivo. */
+    @FXML
+    private void respaldarSQL(ActionEvent event) {
+        javafx.stage.FileChooser selector = new javafx.stage.FileChooser();
+        selector.setTitle("Guardar respaldo de la base de datos");
+        selector.setInitialFileName("puntomaya_respaldo_" + java.time.LocalDate.now() + ".sql");
+        selector.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("Archivo SQL", "*.sql"));
+
+        java.io.File archivo = selector.showSaveDialog(tablaMasVendidos.getScene().getWindow());
+        if (archivo == null) return;
+
+        try {
+            backupService.generarRespaldoSQL(archivo);
+            Alertas.mostrarInformacion("Listo", "Respaldo guardado en:\n" + archivo.getAbsolutePath());
+        } catch (Exception e) {
+            Alertas.mostrarError("Error", "No se pudo generar el respaldo.\n" + e.getMessage());
+        }
+    }
+
+    /** Botón "Exportar a Excel (CSV)": guarda cada tabla como un archivo CSV, para abrir en Excel. */
+    @FXML
+    private void exportarCSV(ActionEvent event) {
+        javafx.stage.DirectoryChooser selector = new javafx.stage.DirectoryChooser();
+        selector.setTitle("Selecciona la carpeta donde guardar los archivos CSV");
+
+        java.io.File carpeta = selector.showDialog(tablaMasVendidos.getScene().getWindow());
+        if (carpeta == null) return;
+
+        try {
+            backupService.exportarCSV(carpeta);
+            Alertas.mostrarInformacion("Listo", "Archivos CSV guardados en:\n" + carpeta.getAbsolutePath());
+        } catch (Exception e) {
+            Alertas.mostrarError("Error", "No se pudo exportar a CSV.\n" + e.getMessage());
+        }
     }
 
     @FXML

@@ -19,6 +19,9 @@
                 <TextField fx:id="txtBuscarProducto" promptText="Buscar por nombre (a granel / sin código)"
                            onAction="#buscarPorNombre" prefWidth="280"/>
                 <TextField fx:id="txtCantidad" text="1" promptText="Cantidad" prefWidth="80"/>
+                <Button fx:id="btnAgregarProductoNuevo" text="+ Producto nuevo"
+                        styleClass="button-secundario" onAction="#abrirFormularioProductoNuevo"
+                        visible="false" managed="false"/>
             </HBox>
         </VBox>
     </top>
