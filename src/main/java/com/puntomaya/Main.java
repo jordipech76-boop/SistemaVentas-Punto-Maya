@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 /**
  * Punto de entrada del sistema PuntoMaya.
@@ -21,6 +22,8 @@ public class Main extends Application {
         scene.getStylesheets().add(getClass().getResource("/com/puntomaya/view/estilos.css").toExternalForm());
 
         stage.setTitle("PuntoMaya - Iniciar sesión");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream
+                ("/com/puntomaya/view/imagenes/icono_puntomaya.png")));
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.show();

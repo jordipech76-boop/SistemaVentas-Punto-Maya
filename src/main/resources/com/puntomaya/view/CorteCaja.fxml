@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane stylesheets="@estilos.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.puntomaya.controller.CorteCajaController"
+            prefWidth="820" prefHeight="640">
+
+    <top>
+        <VBox spacing="10" style="-fx-padding: 16;">
+            <Label text="Corte de Caja" styleClass="titulo"/>
+            <Label text="Compara el efectivo que debería haber contra lo que contaste al cerrar el turno." styleClass="subtitulo"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" style="-fx-padding: 0 16 0 16;">
+            <HBox spacing="14" alignment="CENTER_LEFT">
+                <VBox spacing="4">
+                    <Label text="Turno" styleClass="subtitulo"/>
+                    <TextField fx:id="txtTurno" promptText="Ej. Matutino" prefWidth="150"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Fondo inicial" styleClass="subtitulo"/>
+                    <TextField fx:id="txtFondoInicial" promptText="0.00" prefWidth="140"/>
+                </VBox>
+                <VBox spacing="4">
+                    <Label text="Efectivo contado" styleClass="subtitulo"/>
+                    <TextField fx:id="txtEfectivoContado" promptText="0.00" prefWidth="140"/>
+                </VBox>
+                <Button text="Generar corte" onAction="#generarCorte"/>
+            </HBox>
+
+            <HBox spacing="40" alignment="CENTER_LEFT" style="-fx-padding: 10 0 10 0;">
+                <VBox spacing="2">
+                    <Label text="Efectivo esperado" styleClass="subtitulo"/>
+                    <Label fx:id="lblEsperado" text="" styleClass="label-total"/>
+                </VBox>
+                <VBox spacing="2">
+                    <Label text="Efectivo contado" styleClass="subtitulo"/>
+                    <Label fx:id="lblReal" text="" styleClass="label-total"/>
+                </VBox>
+                <VBox spacing="2">
+                    <Label text="Diferencia" styleClass="subtitulo"/>
+                    <Label fx:id="lblDiferencia" text=""/>
+                </VBox>
+            </HBox>
+
+            <Label text="Historial de tus cortes" styleClass="subtitulo"/>
+            <TableView fx:id="tablaHistorial" prefHeight="260">
+                <columns>
+                    <TableColumn fx:id="colFecha" text="Fecha" prefWidth="110"/>
+                    <TableColumn fx:id="colTurno" text="Turno" prefWidth="110"/>
+                    <TableColumn fx:id="colFondo" text="Fondo inicial" prefWidth="120"/>
+                    <TableColumn fx:id="colEsperado" text="Esperado" prefWidth="120"/>
+                    <TableColumn fx:id="colReal" text="Contado" prefWidth="120"/>
+                    <TableColumn fx:id="colDiferencia" text="Diferencia" prefWidth="120"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 16;">
+            <Button text="Regresar al menú" styleClass="button-secundario" onAction="#regresarAlMenu"/>
+        </HBox>
+    </bottom>
+
+    <padding>
+        <Insets top="0" right="0" bottom="0" left="0"/>
+    </padding>
+</BorderPane>

@@ -14,28 +14,17 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 /**
- * Controlador del menú principal: desde aquí se navega a Ventas, Clientes,
- * Productos, Inventario y Reportes, según el rol del usuario que inició sesión.
+ * Controlador del menú principal.
  */
 public class MenuController {
 
-    @FXML
-    private Label lblBienvenida;
-
-    @FXML
-    private Button btnVentas;
-
-    @FXML
-    private Button btnClientes;
-
-    @FXML
-    private Button btnProductos;
-
-    @FXML
-    private Button btnInventario;
-
-    @FXML
-    private Button btnReportes;
+    @FXML private Label lblBienvenida;
+    @FXML private Button btnVentas;
+    @FXML private Button btnClientes;
+    @FXML private Button btnCorteCaja;
+    @FXML private Button btnProductos;
+    @FXML private Button btnInventario;
+    @FXML private Button btnReportes;
 
     @FXML
     public void initialize() {
@@ -47,10 +36,9 @@ public class MenuController {
     }
 
     /**
-     * Oculta las opciones que no le corresponden al rol actual.
-     * Cajero: solo Ventas y Clientes (para consultar fiados).
-     * Almacenista: solo Productos e Inventario.
-     * Administrador: ve todo, incluidos Reportes.
+     * Cajero: Ventas, Clientes y Corte de Caja.
+     * Almacenista: Productos e Inventario.
+     * Administrador: ve todo.
      */
     private void aplicarPermisosPorRol(RolUsuario rol) {
         switch (rol) {
@@ -62,6 +50,7 @@ public class MenuController {
             case ALMACENISTA -> {
                 btnVentas.setVisible(false);
                 btnClientes.setVisible(false);
+                btnCorteCaja.setVisible(false);
                 btnReportes.setVisible(false);
             }
             case ADMINISTRADOR -> {
@@ -78,6 +67,11 @@ public class MenuController {
     @FXML
     private void abrirClientes(ActionEvent event) throws IOException {
         cambiarPantalla(event, "/com/puntomaya/view/Clientes.fxml", "PuntoMaya - Clientes");
+    }
+
+    @FXML
+    private void abrirCorteCaja(ActionEvent event) throws IOException {
+        cambiarPantalla(event, "/com/puntomaya/view/CorteCaja.fxml", "PuntoMaya - Corte de Caja");
     }
 
     @FXML
@@ -104,7 +98,6 @@ public class MenuController {
     private void cambiarPantalla(ActionEvent event, String rutaFxml, String titulo) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(rutaFxml));
         Parent root = loader.load();
-
         Stage stage = (Stage) ((Button) event.getSource()).getScene().getWindow();
         stage.setScene(new Scene(root));
         stage.setTitle(titulo);

@@ -57,3 +57,74 @@
 .table-view {
     -fx-font-size: 14px;
 }
+
+/* ---- Fondo decorativo estilo maya ---- */
+.menu-fondo-maya {
+    -fx-background-image: url("imagenes/fondo_menu.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+/* ---- Barra de encabezado ---- */
+.header-bar-v2 {
+    -fx-background-color: transparent;
+    -fx-padding: 24 32 18 32;
+    -fx-border-color: transparent transparent #d9c9a8 transparent;
+    -fx-border-width: 0 0 1.5 0;
+}
+
+.header-bienvenida-v2 {
+    -fx-font-size: 14px;
+    -fx-text-fill: #5c4a2e;
+}
+
+/* ---- Botones horizontales tipo "franja" ---- */
+.menu-strip {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 0;
+    -fx-min-width: 560;
+    -fx-max-width: 560;
+    -fx-min-height: 74;
+    -fx-max-height: 74;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(31,58,95,0.18), 8, 0, 0, 3);
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-graphic-text-gap: 22;
+}
+.menu-strip .label { -fx-padding: 0 0 0 22; }
+
+.menu-strip-navy {
+    -fx-background-color: linear-gradient(to bottom, #1f3a5f, #16283f);
+}
+.menu-strip-navy:hover {
+    -fx-background-color: linear-gradient(to bottom, #274a72, #1c324f);
+}
+
+.menu-strip-gold {
+    -fx-background-color: linear-gradient(to bottom, #c48838, #a3691f);
+}
+.menu-strip-gold:hover {
+    -fx-background-color: linear-gradient(to bottom, #d19646, #b5762b);
+}
+
+.btn-cerrar-sesion-v2 {
+    -fx-background-color: #a33a3a;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20 10 18;
+    -fx-graphic-text-gap: 8;
+    -fx-cursor: hand;
+}
+.btn-cerrar-sesion-v2:hover {
+    -fx-background-color: #b84545;
+}
+
+.footer-texto {
+    -fx-font-size: 12px;
+    -fx-text-fill: #8a6f45;
+}
