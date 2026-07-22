@@ -6,6 +6,8 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox alignment="CENTER" spacing="16" stylesheets="@estilos.css"
       xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
@@ -15,8 +17,8 @@
         <Insets top="40" right="40" bottom="40" left="40"/>
     </padding>
 
-    <Label text="PuntoMaya" styleClass="titulo"/>
-    <Label text="Sistema de ventas" styleClass="subtitulo"/>
+    <ImageView fitWidth="280" preserveRatio="true"> <image>
+        <Image url="@imagenes/logo_puntomaya.png"/> </image> </ImageView>
 
     <VBox spacing="8" prefWidth="280">
         <Label text="Usuario"/>
