@@ -356,8 +356,21 @@ public class VentaController {
                 nuevo.setNombre(campoNombre.getText());
                 nuevo.setPrecioVenta(Double.parseDouble(campoPrecioVenta.getText()));
                 nuevo.setPrecioCosto(campoPrecioCosto.getText().isBlank() ? 0 : Double.parseDouble(campoPrecioCosto.getText()));
-                nuevo.setStock(Double.parseDouble(campoStock.getText()));
-                nuevo.setPuntoReorden(Double.parseDouble(campoPuntoReorden.getText()));
+
+                double stockIngresado = Double.parseDouble(campoStock.getText());
+                if (stockIngresado < 0) {
+                    Alertas.mostrarAdvertencia("Stock inválido", "La existencia no puede ser un número negativo. Escribe 0 o más.");
+                    return;
+                }
+                nuevo.setStock(stockIngresado);
+
+                double puntoReordenIngresado = Double.parseDouble(campoPuntoReorden.getText());
+                if (puntoReordenIngresado < 0) {
+                    Alertas.mostrarAdvertencia("Punto de reorden inválido", "El punto de reorden no puede ser negativo. Escribe 0 o más.");
+                    return;
+                }
+                nuevo.setPuntoReorden(puntoReordenIngresado);
+
                 nuevo.setEsGranel(campoGranel.isSelected());
 
                 productoService.guardar(nuevo);
