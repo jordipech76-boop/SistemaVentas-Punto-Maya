@@ -1,3 +1,9 @@
+## 🔗 Ver el proyecto en línea
+
+**[👉 Haz clic aquí para ver las fases y diagramas del proyecto](https://jordipech76-boop.github.io/SistemaVentas-Punto-Maya/)**
+
+---
+
 # PuntoMaya — Sistema de Ventas (Java + Maven + JavaFX + MySQL)
 
 Proyecto generado siguiendo la arquitectura MVC en capas:
