@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PuntoMaya — Fases del proyecto y diagramas</title>
+<style>
+  :root {
+    --navy: #1f3a5f;
+    --navy-dark: #16283f;
+    --blue-fill: #eaf1fb;
+    --blue-border: #2f5f8f;
+    --gold: #b5762b;
+    --gold-fill: #fdf1e0;
+    --er-border: #333333;
+    --note-fill: #fff6b8;
+    --note-border: #d8c95a;
+    --bg: #f4f7fb;
+    --grid: #e3e9f2;
+    --red: #a33a3a;
+    --green: #2e7d4f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: #222;
+  }
+
+  /* ---------- Header / navegación principal ---------- */
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  header h1 { font-size: 17px; margin: 0; font-weight: 700; white-space: nowrap; }
+  .main-tabs { display: flex; gap: 6px; }
+  .main-tab-btn {
+    background: rgba(255,255,255,0.12);
+    border: none; color: white; padding: 9px 16px; border-radius: 6px;
+    cursor: pointer; font-size: 13.5px; font-weight: 600;
+  }
+  .main-tab-btn:hover { background: rgba(255,255,255,0.22); }
+  .main-tab-btn.active { background: var(--gold); }
+
+  .sub-tabs { display: flex; gap: 6px; margin-left: 14px; }
+  .sub-tab-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white; padding: 7px 12px; border-radius: 5px;
+    cursor: pointer; font-size: 12.5px;
+  }
+  .sub-tab-btn.active { background: rgba(255,255,255,0.85); color: var(--navy); font-weight: 700; }
+
+  .hint {
+    font-size: 11.5px; color: #cfe0f5; padding: 8px 20px; background: var(--navy-dark);
+  }
+
+  /* ---------- Vista FASES ---------- */
+  .fases-view { display: none; padding: 22px 26px 60px 26px; max-width: 1180px; margin: 0 auto; }
+  .fases-view.active { display: block; }
+
+  .intro-box {
+    background: white;
+    border: 1px solid #e0e6ee;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .intro-box h2 { margin: 0 0 8px 0; color: var(--navy); font-size: 19px; }
+  .intro-box p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #444; }
+
+  .timeline {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+  }
+  .timeline .tstep {
+    flex: 1;
+    min-width: 110px;
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 6px;
+    background: white;
+    border: 1px solid #e0e6ee;
+    font-size: 11px;
+    color: #555;
+    cursor: pointer;
+  }
+  .timeline .tstep b { display: block; color: var(--navy); font-size: 13px; }
+  .timeline .tstep:hover { background: var(--blue-fill); }
+
+  .phase-card {
+    background: white;
+    border: 1px solid #e0e6ee;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    scroll-margin-top: 120px;
+  }
+  .phase-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--navy) 0%, #274a72 100%);
+    color: white;
+  }
+  .phase-num {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gold); color: white; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .phase-head .titles { flex: 1; }
+  .phase-head h3 { margin: 0; font-size: 16.5px; }
+  .phase-head .subt { font-size: 11.5px; color: #cfe0f5; margin-top: 2px; }
+  .phase-head .chevron { font-size: 14px; transition: transform 0.2s; }
+  .phase-card.open .chevron { transform: rotate(180deg); }
+  .phase-card.deseable .phase-head { background: linear-gradient(90deg, #7a7a7a 0%, #5c5c5c 100%); }
+
+  .phase-body { display: none; padding: 20px 24px 24px 24px; }
+  .phase-card.open .phase-body { display: block; }
+
+  .phase-section { margin-bottom: 18px; }
+  .phase-section h4 {
+    font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--gold); margin: 0 0 8px 0; font-weight: 700;
+  }
+
+  .problem-list { margin: 0; padding-left: 0; list-style: none; }
+  .problem-list li {
+    font-size: 12.5px; color: #444; padding: 6px 0 6px 22px; position: relative;
+    border-bottom: 1px dashed #eee;
+  }
+  .problem-list li:last-child { border-bottom: none; }
+  .problem-list li::before { content: "⚠"; position: absolute; left: 0; color: var(--red); }
+
+  .actor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .actor-box {
+    border: 1px solid #e5e9f0; border-radius: 8px; padding: 10px 12px; background: #fafbfd;
+  }
+  .actor-box .actor-name {
+    font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .actor-box ul { margin: 0; padding-left: 16px; }
+  .actor-box li { font-size: 11.8px; color: #444; margin-bottom: 4px; line-height: 1.4; }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: var(--blue-fill); border: 1px solid var(--blue-border);
+    color: var(--navy); font-size: 11.5px; padding: 5px 12px; border-radius: 16px;
+  }
+  .chip.regla { background: var(--gold-fill); border-color: var(--gold); color: #6b4a1a; font-family: Consolas, monospace; }
+
+  .solution-list { display: flex; flex-direction: column; gap: 10px; }
+  .solution-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: #f0f9f3; border: 1px solid #cfe8d8; border-radius: 8px; padding: 10px 14px;
+  }
+  .solution-item .check { color: var(--green); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .solution-item .txt b { color: var(--green); font-size: 12.5px; display: block; margin-bottom: 2px; }
+  .solution-item .txt span { font-size: 12px; color: #333; line-height: 1.5; }
+  .solution-item.pendiente { background: #fdf6ec; border-color: #f0d9a8; }
+  .solution-item.pendiente .check { color: var(--gold); }
+  .solution-item.pendiente .txt b { color: var(--gold); }
+
+  .practice-list { display: flex; flex-direction: column; gap: 8px; }
+  .practice-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--blue-fill); border: 1px solid #c9dbef; border-radius: 8px; padding: 10px 14px;
+  }
+  .practice-item .pnum {
+    background: var(--blue-border); color: white; width: 20px; height: 20px; border-radius: 50%;
+    font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .practice-item span { font-size: 12px; color: #333; line-height: 1.5; }
+
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .diagram-link-btn {
+    background: white; border: 1.5px solid var(--blue-border); color: var(--blue-border);
+    font-size: 11.8px; padding: 7px 13px; border-radius: 6px; cursor: pointer;
+    font-weight: 600; display: flex; align-items: center; gap: 6px;
+    transition: all 0.15s;
+  }
+  .diagram-link-btn:hover { background: var(--navy); border-color: var(--navy); color: white; }
+  .diagram-link-btn .tag {
+    font-size: 9.5px; background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 10px;
+  }
+  .diagram-link-btn:hover .tag { background: rgba(255,255,255,0.2); }
+
+  /* ---------- Vista DIAGRAMAS ---------- */
+  .diagrams-view { display: none; }
+  .diagrams-view.active { display: block; }
+
+  .viewport { width: 100%; height: calc(100vh - 120px); overflow: auto; position: relative;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+                       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px; }
+  .canvas { position: relative; transform-origin: 0 0; }
+  svg.edges { position: absolute; top: 0; left: 0; pointer-events: none; }
+  .edge-label-role { font-size: 10px; font-style: italic; }
+  .edge-label-mult { font-size: 10px; font-weight: 600; }
+
+  .node { position: absolute; cursor: grab; user-select: none; }
+  .node:active { cursor: grabbing; }
+  .node .del-btn {
+    position: absolute; top: -9px; right: -9px; width: 18px; height: 18px; border-radius: 50%;
+    background: var(--red); color: white; font-size: 12px; line-height: 18px; text-align: center;
+    display: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .node:hover .del-btn { display: block; }
+
+  @keyframes pulseHighlight {
+    0%   { box-shadow: 0 0 0 0 rgba(181,118,43,0.9); }
+    70%  { box-shadow: 0 0 0 18px rgba(181,118,43,0); }
+    100% { box-shadow: 0 0 0 0 rgba(181,118,43,0); }
+  }
+  .node.highlighted::after {
+    content: "";
+    position: absolute; inset: -6px;
+    border: 3px solid var(--gold);
+    border-radius: 10px;
+    animation: pulseHighlight 1.1s ease-out 3;
+    pointer-events: none;
+  }
+
+  .node-actor { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; text-align: center; font-size: 12px; color: #1a1a1a; }
+  .node-actor .icon { font-size: 26px; color: var(--blue-border); line-height: 1; }
+  .node-actor .label { margin-top: 4px; font-weight: 600; white-space: pre-line; }
+
+  .node-usecase { width: 100%; height: 100%; border-radius: 50%; background: var(--blue-fill);
+    border: 1.5px solid var(--blue-border); display: flex; align-items: center; justify-content: center;
+    text-align: center; font-size: 11.5px; padding: 6px; box-shadow: 1px 2px 4px rgba(0,0,0,0.08); }
+
+  .system-boundary { position: absolute; border: 1.5px solid #999; border-radius: 10px;
+    background: rgba(255,255,255,0.4); pointer-events: none; }
+  .system-boundary .title { position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    font-size: 12.5px; font-weight: 700; color: #444; background: var(--bg); padding: 0 8px; }
+
+  .node-box { width: 100%; height: 100%; background: var(--blue-fill); border: 1.3px solid var(--blue-border);
+    border-radius: 3px; overflow: hidden; box-shadow: 1px 2px 5px rgba(0,0,0,0.12);
+    display: flex; flex-direction: column; font-size: 10.8px; }
+  .node-box.enumeration { border-color: var(--gold); background: var(--gold-fill); }
+  .node-box.enumeration .box-title { background: var(--gold); }
+  .node-box.er-entity { border-color: var(--er-border); }
+  .node-box.er-entity .box-title { background: #1f3a5f; }
+  .box-title { background: var(--navy); color: white; font-weight: 700; text-align: center;
+    padding: 5px 6px; font-size: 11.5px; flex-shrink: 0; }
+  .box-title .stereo { display: block; font-size: 9.5px; font-weight: 400; font-style: italic; opacity: 0.9; }
+  .box-section { padding: 5px 8px; border-top: 1px solid rgba(0,0,0,0.12); overflow: hidden; flex: 1; }
+  .box-section div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 1px 0; }
+  .box-section .pk { font-weight: 700; }
+  .box-section .fk { font-style: italic; color: #555; }
+
+  .node-note { width: 100%; height: 100%; background: var(--note-fill); border: 1px solid var(--note-border);
+    border-radius: 4px; padding: 8px; font-size: 11.5px; box-shadow: 2px 3px 6px rgba(0,0,0,0.15);
+    overflow: auto; outline: none; white-space: pre-wrap; }
+  .node-freetext { width: 100%; height: 100%; background: white; border: 1.3px solid var(--blue-border);
+    border-radius: 4px; padding: 8px; font-size: 11px; font-family: Consolas, monospace;
+    white-space: pre-wrap; overflow: auto; box-shadow: 1px 2px 5px rgba(0,0,0,0.1); }
+
+  .toolbar-diag {
+    display: flex; gap: 8px; align-items: center; padding: 8px 20px; background: var(--navy-dark);
+    flex-wrap: wrap;
+  }
+  .tool-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .tool-btn:hover { background: rgba(255,255,255,0.22); }
+  #fileImport { display: none; }
+
+  footer.appfoot { text-align: center; font-size: 11px; color: #888; padding: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PuntoMaya</h1>
+  <div class="main-tabs">
+    <button class="main-tab-btn active" data-main="fases">Fases del proyecto</button>
+    <button class="main-tab-btn" data-main="diagramas">Diagramas</button>
+  </div>
+  <div class="sub-tabs" id="subTabs" style="display:none;">
+    <button class="sub-tab-btn active" data-tab="casos">1. Casos de uso</button>
+    <button class="sub-tab-btn" data-tab="clases">2. Clases</button>
+    <button class="sub-tab-btn" data-tab="er">3. Entidad-Relación</button>
+  </div>
+</header>
+<div class="hint" id="hintBar">
+  Cada fase agrupa lo que pidió cada persona entrevistada, los problemas reales que motivan esa parte
+  del sistema, y botones para saltar directo al diagrama correspondiente.
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA: FASES -->
+<!-- ============================================================ -->
+<div class="fases-view active" id="fasesView">
+
+  <div class="intro-box">
+    <h2>De las entrevistas y documentos del expediente, a fases de desarrollo</h2>
+    <p>
+      Este documento organiza todo lo que pidieron Doña Rosa, Miguel, Lupita y Beto —junto con los
+      problemas reales anotados en la bitácora de incidencias, la libreta de fiados, los cortes de
+      caja y las facturas de proveedor— en <b>7 fases</b> ordenadas de lo más urgente (vender rápido)
+      a lo más avanzado (funciones deseables para después). Cada fase indica qué actor pidió qué,
+      qué problema resuelve, <b>cómo se resuelve con las herramientas reales del proyecto (Java +
+      JavaFX + MySQL, usando las clases DAO/Service/Controller ya construidas)</b>, qué reglas de
+      operación cubre, y tiene botones para saltar directo al elemento correspondiente en los
+      diagramas de casos de uso, clases o entidad-relación.
+    </p>
+  </div>
+
+  <div class="timeline" id="timeline"><!-- se llena por JS --></div>
+
+  <div id="phasesContainer"><!-- se llena por JS --></div>
+
+  <footer class="appfoot">Sistema de Ventas PuntoMaya — Fases derivadas del expediente (entrevistas, reglas de operación y bitácora de incidencias)</footer>
+</div>
+
+<!-- ============================================================ -->
+<!-- VISTA: DIAGRAMAS -->
+<!-- ============================================================ -->
+<div class="diagrams-view" id="diagramsView">
+  <div class="toolbar-diag">
+    <button class="tool-btn" id="btnZoomOut">− Zoom</button>
+    <button class="tool-btn" id="btnZoomIn">+ Zoom</button>
+    <button class="tool-btn" id="btnAddNote">+ Nota</button>
+    <button class="tool-btn" id="btnReset">Restaurar diseño original</button>
+    <button class="tool-btn" id="btnExport">Guardar cambios (.json)</button>
+    <button class="tool-btn" id="btnImport">Abrir cambios guardados</button>
+    <input type="file" id="fileImport" accept="application/json">
+  </div>
+  <div class="viewport" id="viewport">
+    <div class="canvas" id="canvas-casos" data-diagram="casos"></div>
+    <div class="canvas" id="canvas-clases" data-diagram="clases" style="display:none;"></div>
+    <div class="canvas" id="canvas-er" data-diagram="er" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ============================================================
+  // DATOS DE FASES (extraídos del expediente: entrevistas, reglas
+  // de operación, bitácora de incidencias, libreta de fiados, cortes
+  // de caja y facturas de proveedor)
+  // ============================================================
+  var phases = [
+    {
+      numero: 1,
+      titulo: "Ventas y cobro",
+      subt: "El corazón del sistema: agregar productos, cobrar y dar cambio rápido",
+      problemas: [
+        "\"Un cliente reclamó que le cobré 2 refrescos y solo llevó 1. Sin ticket no le pude comprobar nada\" (03/feb).",
+        "\"Lupita cobró la Coca a 15 en vez de 18 porque no supo que ya había subido\" (07/feb) — precios no centralizados.",
+        "\"Hora pico horrible. Fila de 8 personas... cobrar con calculadora es lento\" (25/feb).",
+        "\"Entró alguien nuevo a cubrir a Lupita y no sabía NINGÚN precio. Fue un caos\" (08/mar).",
+        "\"Cancelé una venta porque la cajera picó doble un producto, pero como no hay sistema, quién sabe si de veras se corrigió\" (10/mar)."
+      ],
+      peticiones: {
+        "Doña Rosa": [
+          "Cobro rápido con lector de código de barras; también productos a granel sin código.",
+          "Precios en un solo lugar; solo ella o Miguel los cambian.",
+          "Dar ticket al cliente, para respaldar reclamos."
+        ],
+        "Miguel": [
+          "Que sea RÁPIDO en hora pico.",
+          "Que sirva SIN internet para cobrar.",
+          "Productos por pieza y por peso/kilo (frijol, arroz, azúcar a granel)."
+        ],
+        "Lupita": [
+          "Al pasar un producto, ver su nombre y precio automático (no sabe de memoria los ~400 precios).",
+          "Suma automática y cálculo de cambio exacto.",
+          "Buscar por nombre para productos sin código de barras.",
+          "Quitar un producto o cancelar la venta antes de cobrar.",
+          "Registrar la forma de pago (efectivo, tarjeta, transferencia)."
+        ]
+      },
+      elementos: ["Transacción de venta", "Cobro efectivo/tarjeta/transferencia", "Cálculo de cambio", "Ticket impreso", "Venta por pieza o por kilo"],
+      solucion: [
+        { titulo: "Catálogo con búsqueda instantánea", texto: "ProductoDAO.buscarPorCodigoBarras() / buscarPorNombre() consultan MySQL; VentaController conecta el lector de código de barras (funciona como teclado) al campo de búsqueda." },
+        { titulo: "Carrito de venta en memoria", texto: "VentaController arma la lista de DetalleVenta en memoria (clase Venta.agregarDetalle()); nada se guarda en MySQL hasta confirmar el cobro." },
+        { titulo: "Total y cambio automáticos", texto: "Venta.recalcularTotales() sostiene el total en pantalla en todo momento; VentaController calcula cambio = monto recibido − total." },
+        { titulo: "Guardar la venta", texto: "VentaService.realizarVenta() valida stock, descuenta inventario (ProductoDAO.ajustarStock()) y VentaDAO.guardar() inserta Venta + DetalleVenta en una sola transacción MySQL." },
+        { titulo: "Ticket", texto: "Clase Ticket ya modelada; falta conectar la impresión térmica (ESC/POS) desde VentaController al confirmar el cobro." }
+      ],
+      practica: [
+        "Comprar un lector de código de barras USB tipo \"pistola\" (se conecta como teclado, no necesita instalar drivers) y una impresora térmica de rollo 58mm — son baratos y se consiguen en cualquier tienda de artículos de oficina.",
+        "Antes de arrancar, capturar el catálogo completo (~400 productos) a mano en el sistema — es trabajo de una tarde, pero es indispensable para que el lector funcione desde el primer día.",
+        "Probar el flujo completo de una venta con Lupita en horario normal (no en hora pico) antes de soltarlo, cronometrando cuánto tarda contra la calculadora actual.",
+        "Primera semana: dejar la libreta y la calculadora a la mano como respaldo, por si el sistema falla o Lupita todavía no se siente segura."
+      ],
+      reglas: ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-08", "R-09", "R-10"],
+      links: [
+        { label: "Registrar venta", tag: "caso de uso", diagram: "casos", node: "uc_registrar_venta" },
+        { label: "Buscar producto", tag: "caso de uso", diagram: "casos", node: "uc_buscar_producto" },
+        { label: "Cobrar venta (cambio)", tag: "caso de uso", diagram: "casos", node: "uc_cobrar_venta" },
+        { label: "Generar ticket", tag: "caso de uso", diagram: "casos", node: "uc_generar_ticket" },
+        { label: "Cancelar antes de cobrar", tag: "caso de uso", diagram: "casos", node: "uc_cancelar_antes" },
+        { label: "Cajero (Lupita)", tag: "actor", diagram: "casos", node: "actor_cajero" },
+        { label: "Venta", tag: "clase", diagram: "clases", node: "Venta" },
+        { label: "DetalleVenta", tag: "clase", diagram: "clases", node: "DetalleVenta" },
+        { label: "Producto", tag: "clase", diagram: "clases", node: "Producto" },
+        { label: "Ticket", tag: "clase", diagram: "clases", node: "Ticket" },
+        { label: "FormaPago", tag: "enum", diagram: "clases", node: "FormaPago" },
+        { label: "VENTA", tag: "tabla", diagram: "er", node: "VENTA" },
+        { label: "DETALLE_VENTA", tag: "tabla", diagram: "er", node: "DETALLE_VENTA" },
+        { label: "PRODUCTO", tag: "tabla", diagram: "er", node: "PRODUCTO" },
+        { label: "TICKET", tag: "tabla", diagram: "er", node: "TICKET" }
+      ]
+    },
+    {
+      numero: 2,
+      titulo: "Clientes y fiados (crédito)",
+      subt: "Reemplazar la libreta de fiados: saldo, abonos y límite por cliente",
+      problemas: [
+        "\"Se me olvidó cobrarle a la Sra. Petrona un fiado de diciembre. Ya son 3 meses\" (14/feb).",
+        "\"Le fié al muchacho de la moto y ni sé cómo se llama bien... 110 pesos perdidos por no anotar bien\" (22/feb).",
+        "Libreta de fiados: saldos que hay que sumar/restar a mano → errores; clientes sin datos completos → deudas perdidas.",
+        "Doña Mari: \"aquí ya me perdí, hay que volver a sumar todo. Saldo aproximado: 65 (?)\".",
+        "Abonos con montos dudosos: \"¿pagó 50 o 60?\" (Don Chema, letra de Miguel)."
+      ],
+      peticiones: {
+        "Doña Rosa": [
+          "\"No me acuerdo quién me debe\"; quiere saldo por cliente al instante.",
+          "Avisar de los clientes muy atrasados en su pago (+30 días).",
+          "Límite de crédito: sin tope a buenos pagadores (ej. Maestra Chelo), tope bajo (~$500) a los atrasados; avisar o bloquear.",
+          "Nota en la pared: \"a la maestra Chelo sí subirle el fiado a 800\"; \"NO fiarle más al muchacho de la moto\"."
+        ],
+        "Lupita": [
+          "No siempre sabe cuánto debe ya un cliente antes de dejarlo fiar; quiere ver su saldo al momento."
+        ]
+      },
+      elementos: ["Cliente registrado (nombre, teléfono)", "Saldo (cargos − abonos)", "Cargo (venta fiada)", "Abono (pago parcial o total)", "Límite de crédito por cliente", "Adeudos vencidos"],
+      solucion: [
+        { titulo: "Saldo siempre actualizado", texto: "ClienteDAO.ajustarSaldo() suma o resta directo en MySQL cada vez que hay una venta fiada o un abono — nunca se recalcula \"a mano\"." },
+        { titulo: "Validar el límite antes de fiar", texto: "Cliente.puedeComprarFiado() compara saldoActual + nueva venta contra limiteCredito; VentaService.realizarVenta() la llama antes de guardar si esFiado=true." },
+        { titulo: "Consultar saldo al momento", texto: "ClienteService.buscarPorId() trae el saldo actual para mostrarlo en el ComboBox de cliente dentro de VentaController." },
+        { titulo: "Registrar abonos", texto: "ClienteService.registrarAbono() valida que el monto sea mayor a cero y descuenta el saldo vía ClienteDAO." },
+        { titulo: "Clientes atrasados (pendiente)", texto: "Falta un ClienteDAO.listarConAdeudo() con filtro de fecha para el reporte de +30 días — ya existe listarConAdeudo() sin el filtro de fecha, se puede extender." }
+      ],
+      practica: [
+        "Sentarse con Doña Rosa a pasar la libreta de fiados actual al sistema, cliente por cliente — es el paso más delicado porque hay saldos \"aproximados\" (como el de Doña Mari) que hay que aclarar con cada persona si es posible.",
+        "Definir junto con Doña Rosa el límite real de cada cliente conocido (ej. $800 a la maestra Chelo, $0 o bloqueo al muchacho de la moto) — el sistema no decide esto solo, refleja lo que ella ya sabe de memoria.",
+        "Explicarle a Lupita, con un caso real, cómo leer el saldo en pantalla antes de decidir si fía o no — no basta con que el botón exista, tiene que saber usarlo bajo presión de la fila.",
+        "Poner un límite por default conservador ($500) para clientes nuevos, y que Doña Rosa lo suba manualmente solo a quien ya se ganó la confianza."
+      ],
+      reglas: ["R-11", "R-12", "R-13", "R-14", "R-15", "R-16", "R-17"],
+      links: [
+        { label: "Vender a crédito (fiado)", tag: "caso de uso", diagram: "casos", node: "uc_vender_fiado" },
+        { label: "Validar límite de crédito", tag: "caso de uso", diagram: "casos", node: "uc_validar_limite" },
+        { label: "Consultar saldo de cliente", tag: "caso de uso", diagram: "casos", node: "uc_consultar_saldo" },
+        { label: "Registrar abono", tag: "caso de uso", diagram: "casos", node: "uc_registrar_abono" },
+        { label: "Definir límite de crédito", tag: "caso de uso", diagram: "casos", node: "uc_definir_limite" },
+        { label: "Cliente", tag: "clase", diagram: "clases", node: "Cliente" },
+        { label: "Abono", tag: "clase", diagram: "clases", node: "Abono" },
+        { label: "CLIENTE", tag: "tabla", diagram: "er", node: "CLIENTE" },
+        { label: "ABONO", tag: "tabla", diagram: "er", node: "ABONO" }
+      ]
+    },
+    {
+      numero: 3,
+      titulo: "Inventario y almacén",
+      subt: "Que el inventario deje de llevarse \"a ojo\" y reflejar lo que hay de verdad",
+      problemas: [
+        "\"Nos quedamos sin huevo un día entero. Nadie avisó que se estaba acabando\" (05/feb).",
+        "\"Se echaron a perder 3 litros de leche y 2 yogurts porque caducaron. Dinero a la basura\" (19/feb).",
+        "\"Beto pidió de más de Sabritas y ahora hay 3 cajas que no se venden, y esas sí caducan\" (01/mar).",
+        "Conteo de inventario: \"casi todo salió de menos... esto de contar a mano es un martirio\" (Beto, 09/mar).",
+        "Facturas de proveedor no se capturan en ningún lado: \"por eso el inventario no cuadra y no se conoce el costo real\"."
+      ],
+      peticiones: {
+        "Beto": [
+          "Que el inventario se descuente solo al vender y se sume al recibir mercancía.",
+          "Registrar entradas de cada proveedor (Coca-Cola, Bimbo, Sabritas, distribuidora, cervecería).",
+          "Alertas de stock bajo (punto de reorden) para pedir a tiempo.",
+          "Control de caducidades: avisos de productos por caducar o ya caducados.",
+          "Registrar mermas (roto, caducado, robado) con motivo.",
+          "Registrar devoluciones a proveedor (ej. Bimbo sí acepta devolución de pan caducado).",
+          "Sugerencia de cuánto pedir según ventas históricas.",
+          "Solo necesita el módulo de inventario, no la caja."
+        ],
+        "Doña Rosa": [
+          "\"El huevo lo vendo por kilo pero hay quien lo quiere de a 2 o 3 piezas, tengo que poder venderlo suelto también\"."
+        ]
+      },
+      elementos: ["Existencia por producto", "Entrada de mercancía (proveedor, costo)", "Punto de reorden", "Fecha de caducidad", "Merma (motivo)", "Devolución a proveedor"],
+      solucion: [
+        { titulo: "Inventario automático", texto: "InventarioService.registrarEntrada() suma existencia (ProductoDAO.ajustarStock()); VentaService la resta sola al vender — nadie cuenta \"a ojo\"." },
+        { titulo: "Registrar lo que llega del proveedor", texto: "InventarioController + InventarioService.registrarEntrada(producto, proveedor, cantidad) guardan el movimiento en la tabla inventario de MySQL." },
+        { titulo: "Alertas de stock bajo", texto: "ProductoDAO.listarStockBajo() hace SELECT ... WHERE stock <= punto_reorden; InventarioController la muestra al abrir la pantalla." },
+        { titulo: "Mermas con motivo", texto: "InventarioService.registrarMerma() exige un motivo antes de guardar, y descuenta existencia." },
+        { titulo: "Caducidad (pendiente)", texto: "El campo fecha_caducidad ya existe en la tabla producto; falta una consulta InventarioDAO.listarPorCaducar() y su pantalla — programado para esta fase." }
+      ],
+      practica: [
+        "Hacer un inventario físico completo una sola vez (contar todo lo que hay en el momento del arranque) para que las existencias que carga el sistema sean reales, no supuestas.",
+        "Capacitar a Beto en el hábito de capturar la entrada de mercancía justo cuando llega el camión, antes de acomodarla — si se le hace tarde, se le olvida y el inventario vuelve a fallar.",
+        "Definir los puntos de reorden junto con Beto, producto por producto, basándose en lo que él ya sabe de memoria (cuánto se vende de huevo a la semana, por ejemplo), no en un número arbitrario.",
+        "Arrancar solo con los productos que más rotan (Coca-Cola, Sabritas, pan, leche, huevo) y ampliar al resto del catálogo poco a poco, para no saturar a Beto con la captura inicial."
+      ],
+      reglas: ["R-22", "R-23", "R-24", "R-25", "R-26", "R-27", "R-28"],
+      links: [
+        { label: "Registrar entrada de mercancía", tag: "caso de uso", diagram: "casos", node: "uc_entrada_mercancia" },
+        { label: "Consultar existencias", tag: "caso de uso", diagram: "casos", node: "uc_consultar_inventario" },
+        { label: "Registrar merma", tag: "caso de uso", diagram: "casos", node: "uc_merma" },
+        { label: "Registrar devolución a proveedor", tag: "caso de uso", diagram: "casos", node: "uc_devolucion" },
+        { label: "Alertar stock bajo", tag: "caso de uso", diagram: "casos", node: "uc_alerta_stock" },
+        { label: "Alertar producto por caducar", tag: "caso de uso", diagram: "casos", node: "uc_alerta_caducidad" },
+        { label: "Almacenista (Beto)", tag: "actor", diagram: "casos", node: "actor_almacen" },
+        { label: "Producto", tag: "clase", diagram: "clases", node: "Producto" },
+        { label: "EntradaMercancia", tag: "clase", diagram: "clases", node: "EntradaMercancia" },
+        { label: "Merma", tag: "clase", diagram: "clases", node: "Merma" },
+        { label: "Proveedor", tag: "clase", diagram: "clases", node: "Proveedor" },
+        { label: "PRODUCTO", tag: "tabla", diagram: "er", node: "PRODUCTO" },
+        { label: "ENTRADA_MERCANCIA", tag: "tabla", diagram: "er", node: "ENTRADA_MERCANCIA" },
+        { label: "MERMA", tag: "tabla", diagram: "er", node: "MERMA" },
+        { label: "PROVEEDOR", tag: "tabla", diagram: "er", node: "PROVEEDOR" }
+      ]
+    },
+    {
+      numero: 4,
+      titulo: "Corte de caja",
+      subt: "Saber exacto cuánto debería haber en la caja, y por turno/cajero",
+      problemas: [
+        "\"El corte faltó 80 pesos. No supimos si fue cambio mal dado o qué\" (11/feb).",
+        "\"Volvió a faltar dinero en el corte, 50 pesos. Ya es muy seguido\" (12/mar).",
+        "\"Un cliente pagó con transferencia... en el corte no supe dónde meter ese dinero, lo revolví con efectivo\" (04/mar).",
+        "Corte del 12/mar: faltaron $50; corte del 14/mar (quincena): faltaron $175 — \"seguro se dio mal algún cambio\".",
+        "Cortes a mano mezclan formas de pago y gastos de memoria → nunca cuadran."
+      ],
+      peticiones: {
+        "Doña Rosa": [
+          "Que el corte de caja cuadre exacto (sospecha de errores de cambio y \"robo hormiga\")."
+        ],
+        "Lupita": [
+          "Corte de turno: no sabe si un faltante es de su turno o del otro."
+        ]
+      },
+      elementos: ["Fondo de caja inicial", "Ventas por forma de pago", "Gastos/retiros de caja", "Efectivo esperado vs contado", "Faltante / sobrante", "Turno y cajero responsable"],
+      solucion: [
+        { titulo: "Cálculo del efectivo esperado", texto: "VentaDAO.sumarVentasEfectivo(desde, hasta) suma en MySQL solo las ventas en efectivo del rango de horas del turno." },
+        { titulo: "Comparar contra lo contado", texto: "CorteCajaService.realizarCorte() suma fondoInicial + ventasEfectivo y lo compara contra el efectivo que capture el cajero (CorteCaja.setEfectivoReal() calcula la diferencia sola)." },
+        { titulo: "Separado por formas de pago", texto: "El campo forma_pago de Venta permite filtrar; así una transferencia nunca se revuelve con el efectivo, a diferencia del corte en papel." },
+        { titulo: "Por turno y por cajero", texto: "CorteCajaDAO.guardar() liga el corte a id_usuario y turno; CorteCajaDAO.listarPorUsuario() permite rastrear un faltante a la persona exacta." }
+      ],
+      practica: [
+        "Definir con Doña Rosa un fondo de caja fijo (cuánto dinero se deja siempre al abrir la caja), para que el cálculo del \"efectivo esperado\" tenga un punto de partida real y no varíe cada día.",
+        "Capacitar a Lupita en el proceso exacto de cierre: contar el efectivo físico, capturarlo en el sistema, y revisar la diferencia antes de irse.",
+        "Las primeras dos semanas, hacer el corte en el sistema Y en papel al mismo tiempo, para comparar que ambos den lo mismo y ganar confianza antes de dejar el papel por completo.",
+        "Acordar qué se hace si el corte no cuadra (¿se descuenta al cajero? ¿se reporta a Doña Rosa?) — eso es una decisión del negocio, no algo que el sistema resuelva solo."
+      ],
+      reglas: ["R-29", "R-30", "R-31", "R-32", "R-33"],
+      links: [
+        { label: "Realizar corte de caja", tag: "caso de uso", diagram: "casos", node: "uc_corte_caja" },
+        { label: "CorteCaja", tag: "clase", diagram: "clases", node: "CorteCaja" },
+        { label: "CORTE_CAJA", tag: "tabla", diagram: "er", node: "CORTE_CAJA" }
+      ]
+    },
+    {
+      numero: 5,
+      titulo: "Reportes y ganancia",
+      subt: "Saber qué se vendió, qué deja más ganancia y qué está por acabarse",
+      problemas: [
+        "\"Quincena. Vendimos muchísimo pero al final del día NO tengo idea de cuánto vendí exactamente, ni qué fue lo que más salió\" (15/mar).",
+        "\"Sabemos que entra dinero, pero no sabemos bien cuánto ni en qué se va\" (descripción del negocio)."
+      ],
+      peticiones: {
+        "Miguel": [
+          "Reportes: ventas del día / semana / mes.",
+          "Productos más vendidos.",
+          "Lo que está por acabarse.",
+          "Cuánto nos deben en fiados y quién.",
+          "Ganancia (venta menos costo)."
+        ]
+      },
+      elementos: ["Reporte de ventas por periodo", "Productos más vendidos", "Ganancia por producto (venta − costo)", "Fiados totales por cliente"],
+      solucion: [
+        { titulo: "Ganancia ya calculable", texto: "Producto guarda precioVenta y precioCosto por separado; Producto.calcularGanancia() = precioVenta − precioCosto ya está implementado en el modelo." },
+        { titulo: "Reportes (pendiente de construir)", texto: "Falta un ReporteService + ReporteController que agrupe consultas SQL sobre venta/detalle_venta (ventas del día, más vendidos) y sobre cliente (fiados totales) — es la siguiente pieza a programar." },
+        { titulo: "Por qué no se necesita otra herramienta", texto: "Con los datos que ya capturan VentaDAO y ProductoDAO, un reporte es solo una consulta SQL distinta (SUM, GROUP BY, ORDER BY) sobre las mismas tablas — no requiere librerías externas." }
+      ],
+      practica: [
+        "Reunirse con Miguel después de tener 2-3 semanas de ventas capturadas, para revisar qué reportes de verdad usa y cuáles sobran — es más fácil priorizar viendo datos reales que adivinando.",
+        "Empezar solo con \"ventas del día\" y \"productos más vendidos\", que fueron los que Miguel mencionó primero en la entrevista; \"ganancia\" y \"fiados totales\" pueden ir en un segundo momento.",
+        "Enseñarle a Miguel a leer el reporte de ganancia con cuidado: que entienda que es venta menos costo, y que la cajera nunca debe ver esa pantalla."
+      ],
+      reglas: ["R-18", "R-20"],
+      links: [
+        { label: "Consultar reportes", tag: "caso de uso", diagram: "casos", node: "uc_consultar_reportes" },
+        { label: "Producto (precioCosto/Venta)", tag: "clase", diagram: "clases", node: "Producto" },
+        { label: "Venta", tag: "clase", diagram: "clases", node: "Venta" }
+      ]
+    },
+    {
+      numero: 6,
+      titulo: "Usuarios, roles y seguridad",
+      subt: "Que cada quien entre con su cuenta y solo pueda hacer lo que le toca",
+      problemas: [
+        "Dependencia total de la memoria de Doña Rosa: \"el día que ella no está, todo se complica\".",
+        "Precios desactualizados porque no todos los cajeros se enteran cuando cambian."
+      ],
+      peticiones: {
+        "Doña Rosa": [
+          "Precios: solo ella o Miguel los cambian.",
+          "Permisos por rol: la cajera no debe ver ganancias ni poder borrar ventas."
+        ],
+        "Miguel": [
+          "Usuarios con permisos (que la cajera no vea ganancias).",
+          "Seguridad y roles: cajera solo vende y registra fiados; almacén solo mueve inventario; él y su mamá son administradores."
+        ]
+      },
+      elementos: ["Usuario con contraseña", "Rol: Administrador / Cajero / Almacenista", "Registro de quién hizo cada acción importante"],
+      solucion: [
+        { titulo: "Login", texto: "UsuarioDAO.autenticar(usuario, contraseña) valida contra MySQL; LoginController lo llama y, si es correcto, guarda al usuario en SesionActual." },
+        { titulo: "Menú según el rol", texto: "MenuController.aplicarPermisosPorRol() oculta los botones que no le tocan a cada rol (por ejemplo, Cajero no ve \"Productos\" ni \"Inventario\")." },
+        { titulo: "Precios solo para Administrador", texto: "ProductoController deshabilita el botón \"Guardar producto\" si SesionActual.getUsuario().getRol() no es ADMINISTRADOR." },
+        { titulo: "Bitácora de acciones (pendiente)", texto: "Falta agregar el registro de auditoría (quién canceló una venta y cuándo) — se puede resolver con una tabla bitacora y guardarlo desde VentaService.cancelarVenta()." }
+      ],
+      practica: [
+        "Crear las cuentas de Doña Rosa, Miguel, Lupita y Beto antes del día de arranque, con contraseñas simples de recordar pero no obvias (no \"1234\"), explicadas en persona a cada quien.",
+        "Dejar por escrito (aunque sea a mano) qué puede hacer cada rol, para que si contratan a alguien nuevo como cajero temporal, quede claro qué cuenta darle y qué no debe ver.",
+        "Regla clara desde el día uno: cada persona usa SU PROPIA cuenta, nunca la de otro — si la cajera nueva de la entrevista hubiera tenido su propia cuenta, no habría cobrado a ciegas sin saber los precios."
+      ],
+      reglas: ["R-19", "R-34", "R-35", "R-36"],
+      links: [
+        { label: "Gestionar usuarios y permisos", tag: "caso de uso", diagram: "casos", node: "uc_gestionar_usuarios" },
+        { label: "Modificar precios de productos", tag: "caso de uso", diagram: "casos", node: "uc_modificar_precios" },
+        { label: "Cancelar venta ya cobrada", tag: "caso de uso", diagram: "casos", node: "uc_cancelar_despues" },
+        { label: "Administrador (hereda de Cajero)", tag: "actor", diagram: "casos", node: "actor_admin" },
+        { label: "Usuario", tag: "clase", diagram: "clases", node: "Usuario" },
+        { label: "RolUsuario", tag: "enum", diagram: "clases", node: "RolUsuario" },
+        { label: "USUARIO", tag: "tabla", diagram: "er", node: "USUARIO" }
+      ]
+    },
+    {
+      numero: 7,
+      titulo: "Deseable para después (fase futura)",
+      subt: "Funciones que pidieron pero que no son urgentes para la primera versión",
+      deseable: true,
+      problemas: [],
+      peticiones: {
+        "Miguel": [
+          "Recargas de tiempo aire (Telcel, Movistar, AT&T).",
+          "Pago de servicios (CFE, agua) — \"muy deseable pero complejo, quizá después\".",
+          "Programa de clientes frecuentes / puntos.",
+          "Promociones 2x1 o precio especial.",
+          "Respaldo automático de la información."
+        ]
+      },
+      elementos: ["Recargas de saldo celular", "Pago de servicios", "Puntos de cliente frecuente", "Promociones/descuentos", "Respaldo automático"],
+      solucion: [
+        { titulo: "Aún sin construir", texto: "Ninguna de estas funciones tiene DAO/Service/Controller todavía — se dejaron fuera de la primera versión a propósito, siguiendo el criterio de Miguel de \"lo esencial primero\"." },
+        { titulo: "Cuando se aborden, mismo patrón", texto: "Se seguiría la misma arquitectura: nueva tabla en MySQL + su DAO + su Service + su Controller/FXML, igual que el resto del sistema." },
+        { titulo: "Respaldo automático", texto: "Se resolvería con mysqldump programado (Programador de tareas de Windows) exportando la base a un .sql, como ya se explicó para MySQL." }
+      ],
+      practica: [
+        "No tocar esta fase hasta que las fases 1 a 6 lleven al menos 2-3 meses funcionando sin problemas — meter funciones nuevas antes de eso solo distrae de lo esencial.",
+        "Cuando llegue el momento, volver a preguntarle a Miguel y a Doña Rosa cuál de estas cinco cosas les urge más ahora, porque puede que ya no sea la misma prioridad que tenían en la entrevista original."
+      ],
+      reglas: ["R-21", "R-37", "R-38", "R-39", "R-40"],
+      links: []
+    }
+  ];
+
+  // ============================================================
+  // Render de la vista Fases
+  // ============================================================
+  var timelineEl = document.getElementById("timeline");
+  var phasesContainer = document.getElementById("phasesContainer");
+
+  phases.forEach(function (phase) {
+    var tstep = document.createElement("div");
+    tstep.className = "tstep";
+    tstep.innerHTML = "<b>" + phase.numero + "</b>" + phase.titulo;
+    tstep.addEventListener("click", function () {
+      document.getElementById("phase-card-" + phase.numero).scrollIntoView({ behavior: "smooth", block: "start" });
+      abrirFase(phase.numero);
+    });
+    timelineEl.appendChild(tstep);
+  });
+
+  function actorIcon(nombre) {
+    return "👤";
+  }
+
+  phases.forEach(function (phase) {
+    var card = document.createElement("div");
+    card.className = "phase-card" + (phase.deseable ? " deseable" : "");
+    card.id = "phase-card-" + phase.numero;
+
+    var head = document.createElement("div");
+    head.className = "phase-head";
+    head.innerHTML =
+      '<div class="phase-num">' + phase.numero + '</div>' +
+      '<div class="titles"><h3>' + phase.titulo + '</h3><div class="subt">' + phase.subt + '</div></div>' +
+      '<div class="chevron">▾</div>';
+    head.addEventListener("click", function () { card.classList.toggle("open"); });
+    card.appendChild(head);
+
+    var body = document.createElement("div");
+    body.className = "phase-body";
+
+    if (phase.problemas && phase.problemas.length) {
+      var s1 = document.createElement("div");
+      s1.className = "phase-section";
+      s1.innerHTML = "<h4>Problemas reales que resuelve (bitácora, libreta, cortes)</h4>";
+      var ul = document.createElement("ul");
+      ul.className = "problem-list";
+      phase.problemas.forEach(function (p) {
+        var li = document.createElement("li");
+        li.textContent = p;
+        ul.appendChild(li);
+      });
+      s1.appendChild(ul);
+      body.appendChild(s1);
+    }
+
+    var s2 = document.createElement("div");
+    s2.className = "phase-section";
+    s2.innerHTML = "<h4>Qué pidió cada quien</h4>";
+    var grid = document.createElement("div");
+    grid.className = "actor-grid";
+    Object.keys(phase.peticiones).forEach(function (actor) {
+      var box = document.createElement("div");
+      box.className = "actor-box";
+      var name = document.createElement("div");
+      name.className = "actor-name";
+      name.innerHTML = actorIcon(actor) + " " + actor;
+      box.appendChild(name);
+      var ul2 = document.createElement("ul");
+      phase.peticiones[actor].forEach(function (t) {
+        var li = document.createElement("li");
+        li.textContent = t;
+        ul2.appendChild(li);
+      });
+      box.appendChild(ul2);
+      grid.appendChild(box);
+    });
+    s2.appendChild(grid);
+    body.appendChild(s2);
+
+    if (phase.solucion && phase.solucion.length) {
+      var sSol = document.createElement("div");
+      sSol.className = "phase-section";
+      sSol.innerHTML = "<h4>Cómo lo resolvemos con nuestras herramientas (Java + JavaFX + MySQL)</h4>";
+      var solList = document.createElement("div");
+      solList.className = "solution-list";
+      phase.solucion.forEach(function (sol) {
+        var pendiente = /pendiente/i.test(sol.titulo);
+        var item = document.createElement("div");
+        item.className = "solution-item" + (pendiente ? " pendiente" : "");
+        item.innerHTML =
+          '<div class="check">' + (pendiente ? "◐" : "✓") + '</div>' +
+          '<div class="txt"><b>' + sol.titulo + '</b><span>' + sol.texto + '</span></div>';
+        solList.appendChild(item);
+      });
+      sSol.appendChild(solList);
+      body.appendChild(sSol);
+    }
+
+    if (phase.practica && phase.practica.length) {
+      var sPrac = document.createElement("div");
+      sPrac.className = "phase-section";
+      sPrac.innerHTML = "<h4>Cómo lo haríamos en la práctica (más allá del código)</h4>";
+      var pracList = document.createElement("div");
+      pracList.className = "practice-list";
+      phase.practica.forEach(function (texto, idx) {
+        var item = document.createElement("div");
+        item.className = "practice-item";
+        item.innerHTML = '<div class="pnum">' + (idx + 1) + '</div><span>' + texto + '</span>';
+        pracList.appendChild(item);
+      });
+      sPrac.appendChild(pracList);
+      body.appendChild(sPrac);
+    }
+
+    var s3 = document.createElement("div");
+    s3.className = "phase-section";
+    s3.innerHTML = "<h4>Elementos del sistema en esta fase</h4>";
+    var chipRow = document.createElement("div");
+    chipRow.className = "chip-row";
+    phase.elementos.forEach(function (e) {
+      var chip = document.createElement("span");
+      chip.className = "chip";
+      chip.textContent = e;
+      chipRow.appendChild(chip);
+    });
+    s3.appendChild(chipRow);
+    body.appendChild(s3);
+
+    if (phase.reglas && phase.reglas.length) {
+      var s4 = document.createElement("div");
+      s4.className = "phase-section";
+      s4.innerHTML = "<h4>Reglas de operación relacionadas</h4>";
+      var chipRow2 = document.createElement("div");
+      chipRow2.className = "chip-row";
+      phase.reglas.forEach(function (r) {
+        var chip = document.createElement("span");
+        chip.className = "chip regla";
+        chip.textContent = r;
+        chipRow2.appendChild(chip);
+      });
+      s4.appendChild(chipRow2);
+      body.appendChild(s4);
+    }
+
+    if (phase.links && phase.links.length) {
+      var s5 = document.createElement("div");
+      s5.className = "phase-section";
+      s5.innerHTML = "<h4>Ver en el diagrama</h4>";
+      var linkRow = document.createElement("div");
+      linkRow.className = "link-row";
+      phase.links.forEach(function (link) {
+        var btn = document.createElement("button");
+        btn.className = "diagram-link-btn";
+        btn.innerHTML = link.label + ' <span class="tag">' + link.tag + '</span>';
+        btn.addEventListener("click", function () {
+          irADiagrama(link.diagram, link.node);
+        });
+        linkRow.appendChild(btn);
+      });
+      s5.appendChild(linkRow);
+      body.appendChild(s5);
+    } else if (phase.deseable) {
+      var s6 = document.createElement("div");
+      s6.className = "phase-section";
+      s6.innerHTML = '<h4>Ver en el diagrama</h4><div style="font-size:12px;color:#888;">Estas funciones aún no están modeladas en los diagramas — quedan pendientes para cuando se aborde esta fase.</div>';
+      body.appendChild(s6);
+    }
+
+    card.appendChild(body);
+    phasesContainer.appendChild(card);
+  });
+
+  function abrirFase(numero) {
+    var card = document.getElementById("phase-card-" + numero);
+    if (card) card.classList.add("open");
+  }
+  // Abrir la primera fase por default
+  abrirFase(1);
+
+  // ============================================================
+  // Utilidades geométricas (motor de diagramas)
+  // ============================================================
+  function clipPointOnRect(rect, targetX, targetY) {
+    var rx = rect.x + rect.w / 2;
+    var ry = rect.y + rect.h / 2;
+    var dx = targetX - rx;
+    var dy = targetY - ry;
+    if (dx === 0 && dy === 0) return { x: rx, y: ry };
+    var tX = dx !== 0 ? (rect.w / 2) / Math.abs(dx) : Infinity;
+    var tY = dy !== 0 ? (rect.h / 2) / Math.abs(dy) : Infinity;
+    var t = Math.min(tX, tY);
+    return { x: rx + dx * t, y: ry + dy * t };
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  // ============================================================
+  // Datos: Diagrama de Casos de Uso
+  // ============================================================
+  var casosData = {
+    canvasSize: { w: 1650, h: 1150 },
+    boundary: { x: 380, y: 40, w: 970, h: 1060, title: "Sistema de Ventas PuntoMaya" },
+    nodes: [
+      { id: "actor_tiempo", type: "actor", x: 30, y: 130, w: 150, h: 66, label: "Tiempo\n(procesos automáticos)", icon: "⏱" },
+      { id: "actor_admin", type: "actor", x: 30, y: 430, w: 160, h: 60, label: "Administrador\n(Doña Rosa / Miguel)", icon: "👤" },
+      { id: "actor_almacen", type: "actor", x: 260, y: 330, w: 140, h: 60, label: "Almacenista\n(Beto)", icon: "👤" },
+      { id: "actor_cajero", type: "actor", x: 260, y: 880, w: 130, h: 60, label: "Cajero\n(Lupita)", icon: "👤" },
+
+      { id: "uc_alerta_caducidad", type: "usecase", x: 420, y: 90, w: 210, h: 62, label: "Alertar producto por caducar" },
+      { id: "uc_respaldo", type: "usecase", x: 420, y: 170, w: 210, h: 62, label: "Respaldar base de datos (nocturno)" },
+      { id: "uc_alerta_stock", type: "usecase", x: 420, y: 250, w: 210, h: 62, label: "Alertar stock bajo" },
+
+      { id: "uc_definir_limite", type: "usecase", x: 660, y: 90, w: 210, h: 62, label: "Definir límite de crédito por cliente" },
+      { id: "uc_merma", type: "usecase", x: 660, y: 170, w: 210, h: 62, label: "Registrar merma" },
+      { id: "uc_devolucion", type: "usecase", x: 660, y: 250, w: 210, h: 62, label: "Registrar devolución a proveedor" },
+      { id: "uc_entrada_mercancia", type: "usecase", x: 660, y: 330, w: 210, h: 62, label: "Registrar entrada de mercancía" },
+      { id: "uc_consultar_inventario", type: "usecase", x: 660, y: 410, w: 210, h: 62, label: "Consultar existencias" },
+
+      { id: "uc_cancelar_despues", type: "usecase", x: 660, y: 500, w: 210, h: 62, label: "Cancelar venta ya cobrada" },
+      { id: "uc_modificar_precios", type: "usecase", x: 660, y: 580, w: 210, h: 62, label: "Modificar precios de productos" },
+      { id: "uc_consultar_reportes", type: "usecase", x: 660, y: 660, w: 220, h: 66, label: "Consultar reportes (ventas, ganancia, fiados)" },
+      { id: "uc_gestionar_usuarios", type: "usecase", x: 660, y: 745, w: 210, h: 62, label: "Gestionar usuarios y permisos" },
+
+      { id: "uc_cancelar_antes", type: "usecase", x: 660, y: 830, w: 210, h: 62, label: "Cancelar venta antes de cobrar" },
+      { id: "uc_corte_caja", type: "usecase", x: 660, y: 910, w: 210, h: 62, label: "Realizar corte de caja" },
+      { id: "uc_vender_fiado", type: "usecase", x: 660, y: 990, w: 210, h: 62, label: "Vender a crédito (fiado)" },
+      { id: "uc_registrar_abono", type: "usecase", x: 660, y: 1070, w: 210, h: 62, label: "Registrar abono" },
+
+      { id: "uc_registrar_venta", type: "usecase", x: 940, y: 940, w: 190, h: 62, label: "Registrar venta" },
+      { id: "uc_validar_limite", type: "usecase", x: 940, y: 1030, w: 190, h: 62, label: "Validar límite de crédito" },
+
+      { id: "uc_generar_ticket", type: "usecase", x: 1190, y: 780, w: 180, h: 60, label: "Generar ticket" },
+      { id: "uc_cobrar_venta", type: "usecase", x: 1190, y: 860, w: 190, h: 62, label: "Cobrar venta (calcular cambio)" },
+      { id: "uc_buscar_producto", type: "usecase", x: 1190, y: 940, w: 210, h: 66, label: "Buscar producto (código de barras / nombre)" },
+      { id: "uc_consultar_saldo", type: "usecase", x: 1190, y: 1030, w: 190, h: 62, label: "Consultar saldo de cliente" }
+    ],
+    edges: [
+      { from: "actor_admin", to: "actor_cajero", style: "inherit", label: "hereda" },
+      { from: "actor_admin", to: "actor_almacen", style: "inherit", label: "hereda" },
+      { from: "actor_tiempo", to: "uc_alerta_caducidad", style: "assoc" },
+      { from: "actor_tiempo", to: "uc_respaldo", style: "assoc" },
+      { from: "actor_tiempo", to: "uc_alerta_stock", style: "assoc" },
+      { from: "actor_admin", to: "uc_definir_limite", style: "assoc" },
+      { from: "actor_admin", to: "uc_cancelar_despues", style: "assoc" },
+      { from: "actor_admin", to: "uc_modificar_precios", style: "assoc" },
+      { from: "actor_admin", to: "uc_consultar_reportes", style: "assoc" },
+      { from: "actor_admin", to: "uc_gestionar_usuarios", style: "assoc" },
+      { from: "actor_almacen", to: "uc_merma", style: "assoc" },
+      { from: "actor_almacen", to: "uc_devolucion", style: "assoc" },
+      { from: "actor_almacen", to: "uc_entrada_mercancia", style: "assoc" },
+      { from: "actor_almacen", to: "uc_consultar_inventario", style: "assoc" },
+      { from: "actor_cajero", to: "uc_cancelar_antes", style: "assoc" },
+      { from: "actor_cajero", to: "uc_corte_caja", style: "assoc" },
+      { from: "actor_cajero", to: "uc_vender_fiado", style: "assoc" },
+      { from: "actor_cajero", to: "uc_registrar_abono", style: "assoc" },
+      { from: "uc_registrar_venta", to: "uc_generar_ticket", style: "include", label: "«include»" },
+      { from: "uc_registrar_venta", to: "uc_cobrar_venta", style: "include", label: "«include»" },
+      { from: "uc_registrar_venta", to: "uc_buscar_producto", style: "include", label: "«include»" },
+      { from: "uc_vender_fiado", to: "uc_registrar_venta", style: "extend", label: "«extend»" },
+      { from: "uc_vender_fiado", to: "uc_validar_limite", style: "include", label: "«include»" },
+      { from: "uc_validar_limite", to: "uc_consultar_saldo", style: "include", label: "«include»" }
+    ]
+  };
+
+  // ============================================================
+  // Datos: Diagrama de Clases
+  // ============================================================
+  function classBox(id, x, y, w, title, attrs, methods, opts) {
+    opts = opts || {};
+    return { id: id, type: "box", x: x, y: y, w: w, h: opts.h || (58 + attrs.length * 14 + methods.length * 14),
+             title: title, stereo: opts.stereo || null, attrs: attrs, methods: methods, enumeration: !!opts.enumeration };
+  }
+  var clasesData = {
+    canvasSize: { w: 1350, h: 1150 },
+    nodes: [
+      classBox("CorteCaja", 980, 40, 230, "CorteCaja",
+        ["- id: int", "- fecha: LocalDate", "- turno: String", "- fondoInicial: double", "- efectivoEsperado: double", "- efectivoReal: double", "- diferencia: double"],
+        ["+ calcularEsperado(): double", "+ cuadrar(): boolean"]),
+      classBox("Venta", 610, 300, 230, "Venta",
+        ["- id: int", "- fecha: LocalDateTime", "- subtotal: double", "- descuento: double", "- total: double", "- formaPago: FormaPago", "- esFiado: boolean"],
+        ["+ calcularTotal(): double", "+ cancelar(): void", "+ generarTicket(): Ticket"]),
+      classBox("Cliente", 380, 540, 210, "Cliente",
+        ["- id: int", "- nombre: String", "- telefono: String", "- limiteCredito: double", "- saldoActual: double"],
+        ["+ puedeComprarFiado(m): boolean", "+ actualizarSaldo(): void"]),
+      classBox("DetalleVenta", 130, 620, 200, "DetalleVenta",
+        ["- id: int", "- cantidad: double", "- precioUnitario: double", "- importe: double"], ["+ calcularImporte(): double"]),
+      classBox("Ticket", 900, 540, 180, "Ticket", ["- folio: int", "- fechaEmision: LocalDateTime"], ["+ imprimir(): void"]),
+      classBox("Producto", 40, 900, 220, "Producto",
+        ["- id: int", "- codigoBarras: String", "- nombre: String", "- precioVenta: double", "- precioCosto: double",
+         "- existencia: double", "- esGranel: boolean", "- puntoReorden: double", "- fechaCaducidad: LocalDate"],
+        ["+ calcularGanancia(): double", "+ estaEnStockBajo(): boolean", "+ estaPorCaducar(): boolean"]),
+      classBox("Proveedor", 330, 900, 160, "Proveedor", ["- id: int", "- nombre: String"], []),
+      classBox("EntradaMercancia", 330, 720, 200, "EntradaMercancia",
+        ["- id: int", "- fecha: LocalDateTime", "- cantidad: double"], ["+ registrar(): void"]),
+      classBox("Merma", 560, 720, 190, "Merma",
+        ["- id: int", "- fecha: LocalDateTime", "- cantidad: double", "- motivo: String"], ["+ registrar(): void"]),
+      classBox("Abono", 790, 720, 190, "Abono",
+        ["- id: int", "- fecha: LocalDateTime", "- monto: double"], ["+ registrar(): void"]),
+      classBox("Usuario", 1010, 720, 220, "Usuario",
+        ["- id: int", "- nombre: String", "- nombreUsuario: String", "- contrasena: String", "- rol: RolUsuario"],
+        ["+ esAdmin(): boolean", "+ esCajero(): boolean"]),
+      classBox("RolUsuario", 1010, 960, 190, "RolUsuario",
+        ["ADMINISTRADOR", "CAJERO", "ALMACENISTA"], [], { stereo: "«enumeration»", enumeration: true, h: 110 }),
+      classBox("FormaPago", 610, 60, 180, "FormaPago",
+        ["EFECTIVO", "TARJETA", "TRANSFERENCIA"], [], { stereo: "«enumeration»", enumeration: true, h: 110 })
+    ],
+    edges: [
+      { from: "CorteCaja", to: "Venta", style: "assoc", label: "agrupa", fromM: "1", toM: "0..*" },
+      { from: "Venta", to: "DetalleVenta", style: "assoc", label: "compone", fromM: "1", toM: "1..*" },
+      { from: "DetalleVenta", to: "Producto", style: "assoc", label: "refiere a", fromM: "N", toM: "1" },
+      { from: "Venta", to: "Ticket", style: "assoc", label: "emite", fromM: "1", toM: "1" },
+      { from: "Venta", to: "Cliente", style: "assoc", label: "a nombre de", fromM: "N", toM: "0..1" },
+      { from: "Venta", to: "Usuario", style: "assoc", label: "realizada por", fromM: "N", toM: "1" },
+      { from: "Cliente", to: "Abono", style: "assoc", label: "registra", fromM: "1", toM: "0..*" },
+      { from: "Abono", to: "Usuario", style: "assoc", label: "recibido por", fromM: "N", toM: "1" },
+      { from: "EntradaMercancia", to: "Producto", style: "assoc", label: "aumenta", fromM: "N", toM: "1" },
+      { from: "EntradaMercancia", to: "Proveedor", style: "assoc", label: "proviene de", fromM: "N", toM: "1" },
+      { from: "EntradaMercancia", to: "Usuario", style: "assoc", label: "recibida por", fromM: "N", toM: "1" },
+      { from: "Merma", to: "Producto", style: "assoc", label: "afecta", fromM: "N", toM: "1" },
+      { from: "Merma", to: "Usuario", style: "assoc", label: "registrada por", fromM: "N", toM: "1" },
+      { from: "CorteCaja", to: "Usuario", style: "assoc", label: "responsable", fromM: "N", toM: "1" },
+      { from: "Usuario", to: "RolUsuario", style: "use", label: "«use»" },
+      { from: "Venta", to: "FormaPago", style: "use", label: "«use»" }
+    ]
+  };
+
+  // ============================================================
+  // Datos: Diagrama Entidad-Relación
+  // ============================================================
+  function erBox(id, x, y, w, title, rows) {
+    return { id: id, type: "er", x: x, y: y, w: w, h: 46 + rows.length * 15, title: title, rows: rows };
+  }
+  var erData = {
+    canvasSize: { w: 1400, h: 1050 },
+    nodes: [
+      erBox("PRODUCTO", 40, 40, 220, "PRODUCTO", [
+        { t: "PK id_producto: INT", cls: "pk" }, { t: "codigo_barras: VARCHAR(30) UNIQUE" }, { t: "nombre: VARCHAR(100)" },
+        { t: "precio_venta: DECIMAL(10,2)" }, { t: "precio_costo: DECIMAL(10,2)" }, { t: "existencia: DECIMAL(10,2)" },
+        { t: "es_granel: BOOLEAN" }, { t: "punto_reorden: DECIMAL(10,2)" }, { t: "fecha_caducidad: DATE" }
+      ]),
+      erBox("PROVEEDOR", 300, 60, 170, "PROVEEDOR", [
+        { t: "PK id_proveedor: INT", cls: "pk" }, { t: "nombre: VARCHAR(100)" }
+      ]),
+      erBox("USUARIO", 540, 40, 240, "USUARIO", [
+        { t: "PK id_usuario: INT", cls: "pk" }, { t: "nombre: VARCHAR(100)" }, { t: "nombre_usuario: VARCHAR(50) UNIQUE" },
+        { t: "contrasena: VARCHAR(255)" }, { t: "rol: ENUM('ADMIN','CAJERO','ALMACEN')" }
+      ]),
+      erBox("CLIENTE", 840, 40, 220, "CLIENTE", [
+        { t: "PK id_cliente: INT", cls: "pk" }, { t: "nombre: VARCHAR(100)" }, { t: "telefono: VARCHAR(15)" },
+        { t: "limite_credito: DECIMAL(10,2)" }, { t: "saldo_actual: DECIMAL(10,2)" }
+      ]),
+      erBox("MERMA", 40, 340, 190, "MERMA", [
+        { t: "PK id_merma: INT", cls: "pk" }, { t: "FK id_producto: INT", cls: "fk" }, { t: "FK id_usuario: INT", cls: "fk" },
+        { t: "fecha: DATETIME" }, { t: "cantidad: DECIMAL(10,2)" }, { t: "motivo: VARCHAR(100)" }
+      ]),
+      erBox("ENTRADA_MERCANCIA", 260, 340, 210, "ENTRADA_MERCANCIA", [
+        { t: "PK id_entrada: INT", cls: "pk" }, { t: "FK id_producto: INT", cls: "fk" }, { t: "FK id_proveedor: INT", cls: "fk" },
+        { t: "FK id_usuario: INT", cls: "fk" }, { t: "fecha: DATETIME" }, { t: "cantidad: DECIMAL(10,2)" }
+      ]),
+      erBox("CORTE_CAJA", 500, 340, 210, "CORTE_CAJA", [
+        { t: "PK id_corte: INT", cls: "pk" }, { t: "FK id_usuario: INT", cls: "fk" }, { t: "fecha: DATE" }, { t: "turno: VARCHAR(20)" },
+        { t: "fondo_inicial: DECIMAL(10,2)" }, { t: "efectivo_esperado: DECIMAL(10,2)" }, { t: "efectivo_real: DECIMAL(10,2)" }, { t: "diferencia: DECIMAL(10,2)" }
+      ]),
+      erBox("BITACORA", 740, 340, 190, "BITACORA", [
+        { t: "PK id_bitacora: INT", cls: "pk" }, { t: "FK id_usuario: INT", cls: "fk" }, { t: "accion: VARCHAR(150)" }, { t: "fecha: DATETIME" }
+      ]),
+      erBox("ABONO", 970, 340, 200, "ABONO", [
+        { t: "PK id_abono: INT", cls: "pk" }, { t: "FK id_cliente: INT", cls: "fk" }, { t: "FK id_usuario: INT", cls: "fk" },
+        { t: "fecha: DATETIME" }, { t: "monto: DECIMAL(10,2)" }
+      ]),
+      erBox("VENTA", 540, 620, 240, "VENTA", [
+        { t: "PK id_venta: INT", cls: "pk" }, { t: "FK id_cliente: INT NULL", cls: "fk" }, { t: "FK id_usuario: INT", cls: "fk" },
+        { t: "FK id_corte: INT", cls: "fk" }, { t: "fecha: DATETIME" }, { t: "subtotal: DECIMAL(10,2)" }, { t: "descuento: DECIMAL(10,2)" },
+        { t: "total: DECIMAL(10,2)" }, { t: "forma_pago: ENUM(...)" }, { t: "es_fiado: BOOLEAN" }
+      ]),
+      erBox("DETALLE_VENTA", 260, 880, 220, "DETALLE_VENTA", [
+        { t: "PK id_detalle: INT", cls: "pk" }, { t: "FK id_venta: INT", cls: "fk" }, { t: "FK id_producto: INT", cls: "fk" },
+        { t: "cantidad: DECIMAL(10,2)" }, { t: "precio_unitario: DECIMAL(10,2)" }, { t: "importe: DECIMAL(10,2)" }
+      ]),
+      erBox("TICKET", 560, 900, 180, "TICKET", [
+        { t: "PK folio: INT", cls: "pk" }, { t: "FK id_venta: INT UNIQUE", cls: "fk" }, { t: "fecha_emision: DATETIME" }
+      ])
+    ],
+    edges: [
+      { from: "PRODUCTO", to: "MERMA", style: "er", fromM: "1", toM: "N" },
+      { from: "PRODUCTO", to: "ENTRADA_MERCANCIA", style: "er", fromM: "1", toM: "N" },
+      { from: "PROVEEDOR", to: "ENTRADA_MERCANCIA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "ENTRADA_MERCANCIA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "MERMA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "CORTE_CAJA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "BITACORA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "ABONO", style: "er", fromM: "1", toM: "N" },
+      { from: "CLIENTE", to: "ABONO", style: "er", fromM: "1", toM: "N" },
+      { from: "CLIENTE", to: "VENTA", style: "er", fromM: "1", toM: "N" },
+      { from: "USUARIO", to: "VENTA", style: "er", fromM: "1", toM: "N" },
+      { from: "CORTE_CAJA", to: "VENTA", style: "er", fromM: "1", toM: "N" },
+      { from: "PRODUCTO", to: "DETALLE_VENTA", style: "er", fromM: "1", toM: "N" },
+      { from: "VENTA", to: "DETALLE_VENTA", style: "er", fromM: "1", toM: "N" },
+      { from: "VENTA", to: "TICKET", style: "er", fromM: "1", toM: "1" }
+    ]
+  };
+
+  // ============================================================
+  // Motor genérico de render/drag (igual al documento de diagramas)
+  // ============================================================
+  var diagrams = {
+    casos: { data: casosData, original: JSON.parse(JSON.stringify(casosData)), scale: 1, noteCount: 0 },
+    clases: { data: clasesData, original: JSON.parse(JSON.stringify(clasesData)), scale: 1, noteCount: 0 },
+    er: { data: erData, original: JSON.parse(JSON.stringify(erData)), scale: 1, noteCount: 0 }
+  };
+  var currentDiagTab = "casos";
+
+  function findNode(diagram, id) {
+    var nodes = diagram.data.nodes;
+    for (var i = 0; i < nodes.length; i++) if (nodes[i].id === id) return nodes[i];
+    return null;
+  }
+
+  function renderNodeInner(node) {
+    if (node.editedText !== undefined && node.editedText !== null) {
+      var div = document.createElement("div");
+      div.className = "node-freetext";
+      div.textContent = node.editedText;
+      div.setAttribute("contenteditable", "true");
+      div.addEventListener("blur", function () { node.editedText = div.textContent; });
+      return div;
+    }
+    if (node.type === "note") {
+      var noteDiv = document.createElement("div");
+      noteDiv.className = "node-note";
+      noteDiv.setAttribute("contenteditable", "true");
+      noteDiv.textContent = node.label || "Escribe tu nota aquí";
+      noteDiv.addEventListener("blur", function () { node.label = noteDiv.textContent; });
+      return noteDiv;
+    }
+    if (node.type === "actor") {
+      var a = document.createElement("div");
+      a.className = "node-actor";
+      var icon = document.createElement("div");
+      icon.className = "icon"; icon.textContent = node.icon || "👤";
+      var lbl = document.createElement("div");
+      lbl.className = "label"; lbl.textContent = node.label;
+      a.appendChild(icon); a.appendChild(lbl);
+      return a;
+    }
+    if (node.type === "usecase") {
+      var u = document.createElement("div");
+      u.className = "node-usecase"; u.textContent = node.label;
+      return u;
+    }
+    if (node.type === "box") {
+      var b = document.createElement("div");
+      b.className = "node-box" + (node.enumeration ? " enumeration" : "");
+      var title = document.createElement("div");
+      title.className = "box-title";
+      if (node.stereo) {
+        var st = document.createElement("span");
+        st.className = "stereo"; st.textContent = node.stereo;
+        title.appendChild(st);
+      }
+      title.appendChild(document.createTextNode(node.title));
+      b.appendChild(title);
+      if (node.attrs && node.attrs.length) {
+        var s1 = document.createElement("div"); s1.className = "box-section";
+        node.attrs.forEach(function (line) { var d = document.createElement("div"); d.textContent = line; s1.appendChild(d); });
+        b.appendChild(s1);
+      }
+      if (node.methods && node.methods.length) {
+        var s2 = document.createElement("div"); s2.className = "box-section";
+        node.methods.forEach(function (line) { var d = document.createElement("div"); d.textContent = line; s2.appendChild(d); });
+        b.appendChild(s2);
+      }
+      return b;
+    }
+    if (node.type === "er") {
+      var e = document.createElement("div");
+      e.className = "node-box er-entity";
+      var t2 = document.createElement("div");
+      t2.className = "box-title"; t2.textContent = node.title;
+      e.appendChild(t2);
+      var s3 = document.createElement("div"); s3.className = "box-section";
+      node.rows.forEach(function (row) {
+        var d = document.createElement("div");
+        if (row.cls) d.className = row.cls;
+        d.textContent = row.t;
+        s3.appendChild(d);
+      });
+      e.appendChild(s3);
+      return e;
+    }
+    var fallback = document.createElement("div");
+    fallback.textContent = node.label || node.title || "";
+    return fallback;
+  }
+
+  function buildPlainText(node) {
+    if (node.type === "actor" || node.type === "usecase") return node.label;
+    if (node.type === "box") {
+      var parts = [node.title];
+      if (node.attrs) parts = parts.concat(node.attrs);
+      if (node.methods && node.methods.length) parts.push("---");
+      if (node.methods) parts = parts.concat(node.methods);
+      return parts.join("\n");
+    }
+    if (node.type === "er") {
+      var p2 = [node.title];
+      node.rows.forEach(function (r) { p2.push(r.t); });
+      return p2.join("\n");
+    }
+    return node.label || node.title || "";
+  }
+
+  function renderDiagram(key) {
+    var d = diagrams[key];
+    var container = document.getElementById("canvas-" + key);
+    container.innerHTML = "";
+    container.style.width = d.data.canvasSize.w + "px";
+    container.style.height = d.data.canvasSize.h + "px";
+    container.style.transform = "scale(" + d.scale + ")";
+
+    if (d.data.boundary) {
+      var boundary = document.createElement("div");
+      boundary.className = "system-boundary";
+      boundary.style.left = d.data.boundary.x + "px";
+      boundary.style.top = d.data.boundary.y + "px";
+      boundary.style.width = d.data.boundary.w + "px";
+      boundary.style.height = d.data.boundary.h + "px";
+      var bTitle = document.createElement("div");
+      bTitle.className = "title"; bTitle.textContent = d.data.boundary.title;
+      boundary.appendChild(bTitle);
+      container.appendChild(boundary);
+    }
+
+    var svg = svgEl("svg", { class: "edges", width: d.data.canvasSize.w, height: d.data.canvasSize.h });
+    var defs = svgEl("defs", {});
+    defs.innerHTML =
+      '<marker id="arrow-' + key + '" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">' +
+      '<path d="M0,0 L0,6 L9,3 z" fill="#555"></path></marker>' +
+      '<marker id="triangle-' + key + '" markerWidth="14" markerHeight="12" refX="12" refY="5" orient="auto" markerUnits="strokeWidth">' +
+      '<path d="M0,0 L0,10 L12,5 z" fill="white" stroke="#333" stroke-width="1"></path></marker>';
+    svg.appendChild(defs);
+    container.appendChild(svg);
+
+    d.data.nodes.forEach(function (node) {
+      var el = document.createElement("div");
+      el.className = "node";
+      el.style.left = node.x + "px";
+      el.style.top = node.y + "px";
+      el.style.width = node.w + "px";
+      el.style.height = node.h + "px";
+      el.dataset.id = node.id;
+
+      var inner = renderNodeInner(node);
+      el.appendChild(inner);
+
+      var delBtn = document.createElement("div");
+      delBtn.className = "del-btn"; delBtn.textContent = "×"; delBtn.title = "Eliminar";
+      delBtn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        d.data.nodes = d.data.nodes.filter(function (n) { return n.id !== node.id; });
+        d.data.edges = d.data.edges.filter(function (ed) { return ed.from !== node.id && ed.to !== node.id; });
+        renderDiagram(key);
+      });
+      el.appendChild(delBtn);
+
+      makeDraggable(el, node, key);
+
+      el.addEventListener("dblclick", function (ev) {
+        if (node.type === "note") return;
+        ev.stopPropagation();
+        var current = (node.editedText !== undefined && node.editedText !== null) ? node.editedText : buildPlainText(node);
+        var nuevo = window.prompt("Editar texto de esta figura:", current);
+        if (nuevo !== null) { node.editedText = nuevo; renderDiagram(key); }
+      });
+
+      container.appendChild(el);
+    });
+
+    drawEdges(svg, d, key);
+  }
+
+  function drawEdges(svg, d, key) {
+    var toRemove = [];
+    Array.prototype.forEach.call(svg.childNodes, function (c) { if (c.tagName !== "defs") toRemove.push(c); });
+    toRemove.forEach(function (c) { svg.removeChild(c); });
+
+    d.data.edges.forEach(function (edge) {
+      var fromNode = findNode(d, edge.from);
+      var toNode = findNode(d, edge.to);
+      if (!fromNode || !toNode) return;
+      var rectA = { x: fromNode.x, y: fromNode.y, w: fromNode.w, h: fromNode.h };
+      var rectB = { x: toNode.x, y: toNode.y, w: toNode.w, h: toNode.h };
+      var centerB = { x: rectB.x + rectB.w / 2, y: rectB.y + rectB.h / 2 };
+      var centerA = { x: rectA.x + rectA.w / 2, y: rectA.y + rectA.h / 2 };
+      var p1 = clipPointOnRect(rectA, centerB.x, centerB.y);
+      var p2 = clipPointOnRect(rectB, centerA.x, centerA.y);
+      var dashed = (edge.style === "include" || edge.style === "extend" || edge.style === "use" || edge.style === "inherit");
+      var marker = null;
+      if (edge.style === "inherit") marker = "triangle-" + key;
+      else if (edge.style === "include" || edge.style === "extend" || edge.style === "use") marker = "arrow-" + key;
+
+      var line = svgEl("line", {
+        x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y,
+        stroke: edge.style === "er" ? "#8a1f1f" : "#555",
+        "stroke-width": edge.style === "inherit" ? 1.6 : 1.3,
+        "stroke-dasharray": dashed ? "6,4" : "none"
+      });
+      if (marker) line.setAttribute("marker-end", "url(#" + marker + ")");
+      svg.appendChild(line);
+
+      var midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
+      if (edge.label) {
+        var txt = svgEl("text", { x: midX + 6, y: midY - 6, class: "edge-label-role" });
+        txt.setAttribute("fill", edge.style === "er" ? "#8a1f1f" : (edge.style === "assoc" ? "#333" : "#2f5f8f"));
+        txt.textContent = edge.label;
+        svg.appendChild(txt);
+      }
+      if (edge.fromM) {
+        var t1 = svgEl("text", { x: p1.x + (p2.x > p1.x ? 6 : -18), y: p1.y - 6, class: "edge-label-mult" });
+        t1.setAttribute("fill", "#444"); t1.textContent = edge.fromM;
+        svg.appendChild(t1);
+      }
+      if (edge.toM) {
+        var t2b = svgEl("text", { x: p2.x + (p1.x > p2.x ? 6 : -18), y: p2.y - 6, class: "edge-label-mult" });
+        t2b.setAttribute("fill", "#444"); t2b.textContent = edge.toM;
+        svg.appendChild(t2b);
+      }
+    });
+  }
+
+  function makeDraggable(el, node, key) {
+    var dragging = false, startX, startY, origX, origY;
+    el.addEventListener("pointerdown", function (ev) {
+      if (ev.target.hasAttribute && ev.target.hasAttribute("contenteditable")) return;
+      if (ev.target.classList && ev.target.classList.contains("del-btn")) return;
+      dragging = true;
+      el.setPointerCapture(ev.pointerId);
+      startX = ev.clientX; startY = ev.clientY; origX = node.x; origY = node.y;
+      el.style.zIndex = 30;
+      ev.preventDefault();
+    });
+    el.addEventListener("pointermove", function (ev) {
+      if (!dragging) return;
+      var scale = diagrams[key].scale;
+      node.x = Math.max(0, origX + (ev.clientX - startX) / scale);
+      node.y = Math.max(0, origY + (ev.clientY - startY) / scale);
+      el.style.left = node.x + "px"; el.style.top = node.y + "px";
+      var svg = el.parentElement.querySelector("svg.edges");
+      drawEdges(svg, diagrams[key], key);
+    });
+    function endDrag() { if (!dragging) return; dragging = false; el.style.zIndex = ""; }
+    el.addEventListener("pointerup", endDrag);
+    el.addEventListener("pointercancel", endDrag);
+  }
+
+  // ============================================================
+  // Navegación principal (Fases / Diagramas) + sub-tabs de diagramas
+  // ============================================================
+  var fasesView = document.getElementById("fasesView");
+  var diagramsView = document.getElementById("diagramsView");
+  var subTabsBar = document.getElementById("subTabs");
+  var hintBar = document.getElementById("hintBar");
+
+  function mostrarVista(vista) {
+    document.querySelectorAll(".main-tab-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.main === vista);
+    });
+    fasesView.classList.toggle("active", vista === "fases");
+    diagramsView.classList.toggle("active", vista === "diagramas");
+    subTabsBar.style.display = (vista === "diagramas") ? "flex" : "none";
+    hintBar.textContent = (vista === "diagramas")
+      ? "Arrastra cualquier figura para moverla · doble clic para editar su texto · pasa el mouse para ver el botón de eliminar."
+      : "Cada fase agrupa lo que pidió cada persona entrevistada, los problemas reales que motivan esa parte del sistema, y botones para saltar directo al diagrama correspondiente.";
+  }
+
+  document.querySelectorAll(".main-tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { mostrarVista(btn.dataset.main); });
+  });
+
+  document.querySelectorAll(".sub-tab-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".sub-tab-btn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentDiagTab = btn.dataset.tab;
+      ["casos", "clases", "er"].forEach(function (k) {
+        document.getElementById("canvas-" + k).style.display = (k === currentDiagTab) ? "block" : "none";
+      });
+    });
+  });
+
+  // Función que usan los botones "Ver en el diagrama" de cada fase
+  window.irADiagrama = function (diagramKey, nodeId) {
+    mostrarVista("diagramas");
+    document.querySelectorAll(".sub-tab-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.tab === diagramKey);
+    });
+    currentDiagTab = diagramKey;
+    ["casos", "clases", "er"].forEach(function (k) {
+      document.getElementById("canvas-" + k).style.display = (k === diagramKey) ? "block" : "none";
+    });
+
+    setTimeout(function () {
+      var nodeEl = document.querySelector('#canvas-' + diagramKey + ' [data-id="' + nodeId + '"]');
+      if (!nodeEl) return;
+      nodeEl.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      nodeEl.classList.add("highlighted");
+      setTimeout(function () { nodeEl.classList.remove("highlighted"); }, 3600);
+    }, 80);
+  };
+
+  // ============================================================
+  // Barra de herramientas de diagramas
+  // ============================================================
+  document.getElementById("btnZoomIn").addEventListener("click", function () {
+    var d = diagrams[currentDiagTab]; d.scale = Math.min(2, d.scale + 0.1); renderDiagram(currentDiagTab);
+  });
+  document.getElementById("btnZoomOut").addEventListener("click", function () {
+    var d = diagrams[currentDiagTab]; d.scale = Math.max(0.4, d.scale - 0.1); renderDiagram(currentDiagTab);
+  });
+  document.getElementById("btnAddNote").addEventListener("click", function () {
+    var d = diagrams[currentDiagTab]; d.noteCount++;
+    var id = "nota_" + Date.now() + "_" + d.noteCount;
+    d.data.nodes.push({ id: id, type: "note", x: 60, y: 60, w: 190, h: 120, label: "Nueva nota\n(escribe aquí directamente)" });
+    renderDiagram(currentDiagTab);
+  });
+  document.getElementById("btnReset").addEventListener("click", function () {
+    var ok = window.confirm("Esto va a restaurar el diseño original de este diagrama. ¿Continuar?");
+    if (!ok) return;
+    var d = diagrams[currentDiagTab];
+    d.data = JSON.parse(JSON.stringify(d.original));
+    d.scale = 1; d.noteCount = 0;
+    renderDiagram(currentDiagTab);
+  });
+  document.getElementById("btnExport").addEventListener("click", function () {
+    var payload = {};
+    ["casos", "clases", "er"].forEach(function (k) { payload[k] = diagrams[k].data; });
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "puntomaya-diagramas-guardado.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("btnImport").addEventListener("click", function () {
+    document.getElementById("fileImport").click();
+  });
+  document.getElementById("fileImport").addEventListener("change", function (ev) {
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        var payload = JSON.parse(e.target.result);
+        ["casos", "clases", "er"].forEach(function (k) { if (payload[k]) diagrams[k].data = payload[k]; });
+        renderDiagram("casos"); renderDiagram("clases"); renderDiagram("er");
+        window.alert("Diseño cargado correctamente.");
+      } catch (err) {
+        window.alert("No se pudo leer el archivo. Asegúrate de que sea un .json exportado desde este mismo documento.");
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  });
+
+  // ============================================================
+  // Inicio
+  // ============================================================
+  renderDiagram("casos");
+  renderDiagram("clases");
+  renderDiagram("er");
+})();
+</script>
+</body>
+</html>
